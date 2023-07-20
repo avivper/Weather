@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Objects;
 
 import com.maxmind.geoip2.record.City;
@@ -48,7 +49,7 @@ public class Data {
         }
     }
 
-    public static int getTemperature(String city) { // Except a city to output a weather data according to the city name
+    public int getTemperature(String city) { // Except a city to output a weather data according to the city name
         String weatherData = getWeatherData(city, apiKey);
         return (int) parseTemperatureCelsius(weatherData);
     }
@@ -151,5 +152,6 @@ public class Data {
         }
         return data; // Will return null
     }
+
 }
 

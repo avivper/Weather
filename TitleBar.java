@@ -10,31 +10,32 @@ import javafx.stage.Stage;
 public class TitleBar extends HBox {
     private double xOffset = 0;
     private double yOffset = 0;
+    public static Button closeButton;
 
     public TitleBar(Stage stage) {
         this.setPadding(new Insets(10));
         this.setStyle(" -fx-background-color: #333333;");
         this.setAlignment(Pos.CENTER_RIGHT);
 
-        Button minimizeButton = new Button("-");
-        Button closeButton = new Button("X");
+        Button minimizeButton = new Button();
+        closeButton = new Button();
 
+        minimizeButton.setId("minimize-button");
         minimizeButton.setOnAction(
                 event -> {
                     stage.setIconified(true);
                 }
         );
 
+        closeButton.setId("close-button");
         closeButton.setOnAction(
                 event -> {
                     stage.close();
                 }
         );
 
-        HBox spacer = new HBox();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        this.getChildren().addAll(spacer, minimizeButton, closeButton);
+        HBox.setMargin(minimizeButton, new Insets(0, 10, 0, 0));
+        this.getChildren().addAll(minimizeButton, closeButton);
 
         this.setOnMousePressed(
                 event -> {
