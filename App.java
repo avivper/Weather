@@ -92,8 +92,8 @@ public class App extends Application {
 
         sidebarGrid.add(titleSidebar, 0, 0);
         sidebarGrid.add(plusButton, 0, 1);
-        // sidebarContent.setSpacing(2);
-        // sidebarContent.setPadding(new Insets(20));
+        sidebarContent.setSpacing(2);
+        sidebarContent.setPadding(new Insets(20));
         sidebarContent.getChildren().add(sidebarGrid);
 
         return sidebarContent;
