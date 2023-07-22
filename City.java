@@ -1,11 +1,11 @@
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
-import java.util.Calendar;
 
 public class City extends BorderPane {
 
@@ -13,40 +13,37 @@ public class City extends BorderPane {
         Data.createClock();
         Main.clock = new Label();
 
-        VBox topContainer = new VBox();
+        HBox clockContainer = new HBox();
+        VBox dataContainer = new VBox();
+        // todo: make a forecast container
 
         Label City = new Label(city);
         Label Temperature = new Label((
                 Data.getTemperature(city)
         ) + " °C");
 
+        // Implement CSS
         Main.clock.setId("Clock");
         Temperature.setId("basedTemperature");
         City.setId("city");
 
-        topContainer.setSpacing(10);
-        topContainer.setPadding(new Insets(10));
-        topContainer.getChildren().addAll(City, Temperature);
+        // Top Container
+        clockContainer.setPadding(new Insets(10));
+        clockContainer.setAlignment(Pos.TOP_RIGHT);
+        clockContainer.getChildren().add(Main.clock);
 
-        this.setTop(topContainer);
-        this.setBottom(Main.clock);
+        dataContainer.setPadding(new Insets(0, 10, 0, 0));
+        dataContainer.setSpacing(5);
+        dataContainer.getChildren().add(0, City);
+        dataContainer.getChildren().add(1, Temperature);
+        dataContainer.setAlignment(Pos.TOP_CENTER);
 
-        int hour = Clock.createCalendar().get(Calendar.HOUR_OF_DAY);
-        setCityBackground(hour); // Apply the appropriate background based on the hour
+        this.setTop(clockContainer);
+        this.setCenter(dataContainer);
+
+        Clock.setCityBackground(this); // Apply the appropriate background based on the hour
 
     }
-
-    // Set the background style based on the hour
-    private void setCityBackground(int hour) {
-        if (hour >= 19 || hour < 5) {
-            this.getStyleClass().remove("day");
-            this.getStyleClass().add("night");
-        } else {
-            this.getStyleClass().remove("night");
-            this.getStyleClass().add("day");
-        }
-    }
-
 }
 
 class addCity {
@@ -81,10 +78,11 @@ class addCity {
 
                 newButton.setOnAction(
                         event -> {
-                            // Call a method to switch to a new layout
-                            switchLayout(city);
+                            Main.HomeisOpen = false;
+                            switchLayout(city); // Call a method to switch to a new layout
                         }
                 );
+
                 newButton.setId("newButton");  // Implement CSS
                 // Creating new VBox to contain the new button
                 VBox sidebar = new VBox();
@@ -106,7 +104,6 @@ class addCity {
     private static void switchLayout(String newCity) {
         City city = new City(newCity);
         BorderPane root = Main.getMainRoot();
-        Clock.DayNightBackground();
         root.setCenter(city);
     }
 }

@@ -1,9 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import com.maxmind.geoip2.record.City;
 import com.maxmind.geoip2.record.Country;
@@ -12,11 +9,15 @@ import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.DatabaseReader;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +29,7 @@ public class Data {
 
     private static String Public_IP = PublicIPFinder();
     private static final String DataPath = "data\\GeoLite2-City.mmdb";
+    private static final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f"; // todo: hide it somewhere and hook it from the web
     public static TableView<Search> Table;
 
     private static boolean Check(String[][] arr) {  // Check if is there any null value in the arrays
@@ -192,9 +194,13 @@ public class Data {
         return data; // Will return null
     }
 
-    public static VBox searchResultsContainer() {  // Results Data Container
-        VBox searchContainer = new VBox(5);
+    public static HBox searchResultsContainer() {  // Results Data Container
+        HBox searchContainer = new HBox();
+
         Table = new TableView<>();
+
+        ObservableList<Search> Data = FXCollections.observableArrayList();
+
         TableColumn<Search, String> cityColumn = new TableColumn<>("City");
         TableColumn<Search, String> countryColumn = new TableColumn<>("Country");
         TableColumn<Search, String> provinceColumn = new TableColumn<>("Province");
@@ -203,14 +209,21 @@ public class Data {
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("country"));
         provinceColumn.setCellValueFactory(new PropertyValueFactory<>("province"));
 
-        // Will present nothing before search and if the search is failed
-        Label notFound = new Label("");
-        Table.setPlaceholder(notFound);
+        cityColumn.prefWidthProperty().set(100);
+        countryColumn.prefWidthProperty().set(110);
+        provinceColumn.prefWidthProperty().set(120);
+
+        Data.add(new Search("", "", "", ""));
+        Table.setItems(Data);
 
         Table.getColumns().addAll(  // todo: fix that
                 cityColumn, countryColumn, provinceColumn
         );
 
+        Table.getStyleClass().add("table-view");  // Implement CSS
+
+        searchContainer.setPadding(new Insets(5));
+        searchContainer.setAlignment(Pos.TOP_CENTER);
         searchContainer.getChildren().add(Table);
 
         return searchContainer;
@@ -230,11 +243,17 @@ public class Data {
                             Results[2][i],  // Province
                             Results[3][i] // Country Code
                     ));
+                } else if (Data.isEmpty()) {
+                    Label notFound = new Label(" ");
+                    Data.add(new Search("", "", "", ""));
+                    Table.setPlaceholder(notFound);
                 } else {  // todo: Make an error message
-                    break;  // Stops the loop
+                    break; // Stop the loop
                 }
             }
+
             Table.setItems(Data);
+
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();   // todo: Make an error message
         }

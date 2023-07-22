@@ -1,7 +1,4 @@
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,17 +6,17 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
-import java.util.Calendar;
+
 import java.util.Objects;
 
 public class Main  extends Application {
 
-    private boolean SearchisOpen = false;  // Prevent from the user open multiple search Windows
-    private static final String UIPath = "ui.css";
+    private static boolean SearchisOpen = false;  // Prevent from the user open multiple search Windows
+    public static boolean HomeisOpen = true; // Prevent from the user to load Home and make the software slow
 
+    public static final String UIPath = "ui.css";
     public static BorderPane MainRoot;
-    public static VBox CenterContent;
+    public static BorderPane CenterContent;
     public static Label clock;
     public static VBox sidebarCities;  // Container for new Cities that was added by the user
     public static TextField citySearchField;
@@ -52,16 +49,13 @@ public class Main  extends Application {
         HBox sidebar = new HBox(sidebarCities);
 
         VBox topContainer = new VBox(closeBar, titleBar);
-        CenterContent = createCenterContent();
+        CenterContent = createHome();
 
         MainRoot.setTop(topContainer);
         MainRoot.setCenter(CenterContent);  // Set the Home Stage on the center
         MainRoot.setLeft(sidebar);
 
         Scene scene = new Scene(MainRoot);
-
-        CenterContent.getStyleClass().add("day");
-        Clock.DayNightBackground();
 
         primaryStage.initStyle(StageStyle.UNDECORATED);  // Hide the OS closeBar
         primaryStage.setResizable(false); // Prevent from the user to resize the window
@@ -71,38 +65,40 @@ public class Main  extends Application {
         primaryStage.show();
     }
 
-    private void search() {
+    private static void search() {
         SearchisOpen = true;
         Stage searchStage = new Stage();
 
         BorderPane root = new BorderPane();
         HBox BottomContainer = new HBox();
         HBox SearchContainer = new HBox();
-        HBox closeBar = createCloseBar(searchStage); // Creating CloseBar
-        VBox table = Data.searchResultsContainer();  // Creating Table
-        VBox DataContainer = new VBox();
         VBox topContainer = new VBox(); // Containing CloseBar + Search Field
+        VBox centerContainer = new VBox();
 
         citySearchField = new TextField();  // Search field for the city search engine
 
         // Buttons
-        Button searchButton = new Button("Search");
+        Button searchButton = new Button();
         Button addButton = new Button("Add");
 
         // Handling top Container
-        SearchContainer.setAlignment(Pos.CENTER);
-        SearchContainer.setPadding(new Insets(0, 5, 0, 0));
+        HBox.setMargin(SearchContainer, new Insets(0, 5, 0, 0));
+        SearchContainer.setAlignment(Pos.TOP_CENTER);
+        SearchContainer.setSpacing(10);
         SearchContainer.getChildren().add(0, citySearchField);
         SearchContainer.getChildren().add(1, searchButton);
-        topContainer.getChildren().add(0, closeBar); // Get the CloseBar first on top
+        topContainer.getChildren().add(0, createCloseBar(searchStage)); // Get the CloseBar first on top
         topContainer.getChildren().add(1, SearchContainer); // Get the Search Container second that will be below CloseBar
 
         // Handling Center
-        DataContainer.getChildren().add(table);
+        centerContainer.setAlignment(Pos.TOP_CENTER);
+        centerContainer.setSpacing(10);
+        centerContainer.getChildren().add(Data.searchResultsContainer());
 
         // Handling Bottom
-        BottomContainer.setAlignment(Pos.CENTER); // Align the button on the center
-        BottomContainer.getChildren().addAll(addButton);
+        HBox.setMargin(BottomContainer, new Insets(10));
+        BottomContainer.setAlignment(Pos.CENTER);
+        BottomContainer.getChildren().add(addButton);
 
         searchButton.setOnAction(
                 event -> Data.performSearch()
@@ -122,14 +118,21 @@ public class Main  extends Application {
         );
 
         // Implement CSS
-        // searchButton.setId("magnifying-glass ");
+        searchButton.setId("magnifying-glass");
         citySearchField.setId("text-field");
+        addButton.setId("addButton");
+        root.getStyleClass().add("root");
 
         root.setTop(topContainer);  // Set topContainer as the top of the root
-        root.setCenter(DataContainer);  // Set DataContainer as the center of the root
+        root.setCenter(centerContainer);  // Set DataContainer as the center of the root
         root.setBottom(BottomContainer);
 
         Scene scene = new Scene(root);
+
+        // Implement CSS
+        String cssPath = Objects.requireNonNull(
+                Main.class.getResource("search.css")).toExternalForm();
+        scene.getStylesheets().add(cssPath);
 
         searchStage.initStyle(StageStyle.UNDECORATED);  // Hide the OS Close bar and the Title Bar
         searchStage.setResizable(false);  // Prevent from window to   resize the window
@@ -174,13 +177,22 @@ public class Main  extends Application {
         return titleBar;
     }
 
-    private VBox createSidebar() {  // Side bar, mostly contain new cities that was added by the user
+    private VBox createSidebar() {  // Sidebar, mostly contain new cities that was added by the user
         VBox sidebar = new VBox();
         addCity.Tabs = new Button[12];
 
         addCity.Tabs[0] = new Button("Home");  // Saving the first Button for Home Stage that will display location's weather
         Button homeButton = addCity.Tabs[0];  // Creating variable name for homeButton
         homeButton.setId("newButton");  // Implement CSS
+
+        homeButton.setOnAction(
+                event -> {
+                    if (!HomeisOpen) {
+                        HomeisOpen = true;
+                        switchHome();
+                    }
+                }
+        );
 
         VBox.setVgrow(sidebar, Priority.ALWAYS);
         sidebar.setFillWidth(true);
@@ -193,55 +205,52 @@ public class Main  extends Application {
         return sidebar;
     }
 
-    private VBox createCenterContent() {
+    private BorderPane createHome() {
         Data.createClock();
         clock = new Label();
 
-        String city = Data.getCity();
-        VBox centerContent = new VBox();
-        GridPane dataContainer = new GridPane();
+        BorderPane root = new BorderPane();
+        HBox clockContainer = new HBox();
+        VBox dataContainer = new VBox();
+        // todo: make a forecast container
 
-        Label HomeCity = new Label(city); // Contains the user's city location based on Public IP Address
+        Label HomeCity = new Label(Data.getCity()); // Contains the user's city location based on Public IP Address
         Label HomeTemperature = new Label(Data.basedTemperatureLocation() + " °C");
 
-        // Implement the UI
+        // Implement CSS
         clock.setId("Clock");
         HomeTemperature.setId("basedTemperature");
         HomeCity.setId("city");
 
-        dataContainer.setPadding(new Insets(10));
-        dataContainer.setVgap(10);
-        dataContainer.setHgap(10);
-        dataContainer.add(HomeCity, 0, 5, 2, 1);
-        dataContainer.add(HomeTemperature, 0, 6, 2 , 2);
-        dataContainer.add(clock, 1, 0, 1, 2);
-
-        // Set constraints to place the live clock on the top right
-        ColumnConstraints column1 = new ColumnConstraints();
-        column1.setHgrow(Priority.ALWAYS); // Make the first column grow to fill any remaining space
-        dataContainer.getColumnConstraints().addAll(column1);
-
-        RowConstraints row1 = new RowConstraints();
-        RowConstraints row2 = new RowConstraints();
-        row2.setVgrow(Priority.ALWAYS); // Make the second row grow to fill any remaining space
-        dataContainer.getRowConstraints().addAll(row1, row2);
-
-        // Align the city and temperature labels to the center
-        GridPane.setHalignment(HomeTemperature, HPos.CENTER);
-        GridPane.setHalignment(HomeCity, HPos.CENTER);
-
-        centerContent.getChildren().add(dataContainer);
-        centerContent.setPadding(new Insets(20));
+        // Top Container
+        clockContainer.setPadding(new Insets(10));
+        clockContainer.setAlignment(Pos.TOP_RIGHT);
+        clockContainer.getChildren().add(clock);
 
 
-        return centerContent;
+        // Central data
+        dataContainer.setPadding(new Insets(0, 10, 0, 0));
+        dataContainer.setSpacing(5);
+        dataContainer.getChildren().add(0, HomeCity);
+        dataContainer.getChildren().add(1, HomeTemperature);
+        dataContainer.setAlignment(Pos.TOP_CENTER);
+
+        root.setTop(clockContainer);
+        root.setCenter(dataContainer);
+        Clock.setCityBackground(root);
+
+        return root;
+
+
+    }
+
+    private void switchHome() {
+        BorderPane home = createHome();
+        MainRoot.setCenter(home);
     }
 
     private static CloseBar createCloseBar(Stage stage) {
         return new CloseBar(stage);
     }
-
-
-
 
 }

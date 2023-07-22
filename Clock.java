@@ -1,5 +1,6 @@
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 
 import java.util.Calendar;
@@ -15,24 +16,20 @@ public class Clock {
         return calendar;
     }
 
-    public static void DayNightBackground() {  // todo: Make this method get VBox
-        if (Main.CenterContent != null) {
+    public static void setCityBackground(BorderPane root) {
+        if (root != null) {
             Calendar calendar = createCalendar();
             hour = calendar.get(Calendar.HOUR_OF_DAY);
-            System.out.println(hour);
-
-            // Avoiding duplicates
-            Main.CenterContent.getStyleClass().remove("night");
-            Main.CenterContent.getStyleClass().remove("day");
 
             if (hour >= 19 || hour < 5) {
-                Main.CenterContent.getStyleClass().remove("day");
-                Main.CenterContent.getStyleClass().add("night");
+                root.getStyleClass().remove("day");
+                root.getStyleClass().add("night");
             } else {
-                Main.CenterContent.getStyleClass().remove("night");
-                Main.CenterContent.getStyleClass().add("day");
+                root.getStyleClass().remove("night");
+                root.getStyleClass().add("day");
             }
-        }
+
+        } // todo: Make an error message with else statement
     }
 
     public Clock() {

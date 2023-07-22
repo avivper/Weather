@@ -5,8 +5,11 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class CloseBar extends HBox {
-    private double xOffset = 0;
-    private double yOffset = 0;
+
+    // The Window will start and (0, 0), at the center of the screen
+    private double xOffset = 0; // X Axis
+    private double yOffset = 0; // Y Axis
+
     public static Button closeButton;
 
     public CloseBar(Stage stage) {
@@ -36,6 +39,11 @@ public class CloseBar extends HBox {
         // Space between close and minimize
         HBox.setMargin(minimizeButton, new Insets(0, 10, 0, 10));
         this.getChildren().addAll(minimizeButton, closeButton);
+
+        /*
+        When I was a child I asked myself why I should learn the X and Y Graph?
+        Well, after I started to code, Now I understand WHY
+         */
 
         this.setOnMousePressed(
                 event -> {

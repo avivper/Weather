@@ -1,0 +1,37 @@
+/* search.css */
+
+/* Styles for the performSearch button */
+#performSearch {
+    -fx-background-color: #007bff; /* Blue background color */
+    -fx-text-fill: white; /* Text color */
+    -fx-font-size: 14px;
+}
+
+/* Styles for the addButton */
+#addButton {
+    -fx-background-color: #28a745; /* Green background color */
+    -fx-text-fill: white; /* Text color */
+    -fx-font-size: 14px;
+}
+
+/* Styles for the table */
+.table-view {
+    -fx-font-size: 14px;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f0f0f0; /* Header background color */
+}
+
+.table-row-cell {
+    -fx-background-color: #f8f8f8; /* Row background color */
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f0f0f0; /* Alternate row background color */
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #007bff; /* Selected row background color */
+    -fx-text-fill: white; /* Selected row text color */
+}
