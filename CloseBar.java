@@ -41,14 +41,14 @@ public class CloseBar extends HBox {
                 event -> {
                     xOffset = event.getSceneX();
                     yOffset = event.getSceneY();
-                    xOffset = stage.getX() - event.getSceneX();
+                    xOffset = stage.getX() - event.getScreenX();
                     yOffset = stage.getY() - event.getScreenY();
                 }
         );
 
         this.setOnMouseDragged(
                 event -> {
-                    stage.setX(event.getSceneX() + xOffset);
+                    stage.setX(event.getScreenX() + xOffset);
                     stage.setY(event.getScreenY() + yOffset);
                 }
         );

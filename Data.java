@@ -3,6 +3,7 @@ import java.net.*;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
+import java.util.Scanner;
 
 import com.maxmind.geoip2.record.City;
 import com.maxmind.geoip2.record.Country;
@@ -25,58 +26,71 @@ import org.apache.commons.csv.CSVFormat;
 
 public class Data {
 
-    private static final String Public_IP = PublicIPFinder();
+    private static String Public_IP = PublicIPFinder();
+    private static final String DataPath = "data\\GeoLite2-City.mmdb";
     private static final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f"; // todo: hide it somewhere and hook it from the web
     public static TableView<Search> Table;
 
-    private static boolean Check(String[] arr) {  // Check if is there any null value in the arrays
-        for (String value : arr) {
-            if (value == null) {
-                return false;
+    private static boolean Check(String[][] arr) {  // Check if is there any null value in the arrays
+        for (String[] value : arr) {  // For each value in the array
+            if (value == null) {  // If it's find null, well, that's sucks bro
+                System.out.println(Arrays.toString(arr));
+                return false;  // The array is null
             }
         }
-        return true;
+        return true;  // Yay, that's work :D
     }
 
-    // todo: fix offline problem
+    public static void createClock() {
+        new Clock();
+    }
+
+    // todo: make it more steady with various url services
     public static String PublicIPFinder() {
         try {
-            URL url = new URL("https://api.ipify.org");  // Contain user IP address
+            URL url = new URL("http://checkip.amazonaws.com/");  // Contain user IP address
             HttpURLConnection http_connection = (HttpURLConnection) url.openConnection();
             http_connection.setRequestMethod("GET");  // Making a request
-            BufferedReader reader = new BufferedReader(new InputStreamReader(http_connection.getInputStream())); // Perform a request
-            String Public_IP = reader.readLine();  // Get the data from the website
-            reader.close();
-            return Public_IP; // returns the IP of the user
+            http_connection.setConnectTimeout(5000);
+            http_connection.connect();
+
+            if (http_connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                try (InputStream inputStream = http_connection.getInputStream();
+                Scanner scanner = new Scanner(new InputStreamReader(inputStream))) {
+                    Public_IP = scanner.next();
+                    return Public_IP;
+                }
+            } else {  // todo: make an error message
+                return "Error: Unable to fetch public IP. HTTP Response Code: " + http_connection.getResponseCode();
+            }
         } catch (IOException e) {
-            return e.toString();
+            return "Error " + e.getMessage();
         }
     }
 
-    // todo: fix offline problem
-    public static String[] getDataLocation() {   // Gets location by the IP of the user
-        String[] data_location = new String[2];  // Array that will get 2 elements of string, one is city and the second is country
-        File database = new File("data\\GeoLite2-City.mmdb"); // Read the db file
-        try (DatabaseReader reader = new DatabaseReader.Builder(database).build()) {  // Build the file
-            CityResponse response = reader.city(InetAddress.getByName(Public_IP)); // Gets the data based on Public IP
-            City city = response.getCity();
-            Country country = response.getCountry();
-            data_location[0] = city.getName();  // Set the first element of the array as the string of the city
-            data_location[1] = country.getName(); // Set the second element of the array as the string of the country
-            return data_location;
-        } catch (GeoIp2Exception | IOException e) {
-            throw new RuntimeException(e);
+    public static String getCity() {   // Gets location by the IP of the user
+        if (!Objects.equals(Public_IP, "Error Connect timed out")) {
+            File database = new File(DataPath);  // Read the database
+            try (DatabaseReader reader = new DatabaseReader.Builder(database).build()) {  // Build
+                CityResponse response = reader.city(InetAddress.getByName(Public_IP));
+                City city = response.getCity();
+                return city.getName();
+            } catch (GeoIp2Exception | IOException e) { // todo: make an error message
+                e.printStackTrace();
+                return null;
+            }
+        } else {  // todo: make an error message
+            return null;
         }
     }
 
-    public int getTemperature(String city) { // Except a city to output a weather data according to the city name
+    public static int getTemperature(String city) { // Except a city to output a weather data according to the city name
         String weatherData = getWeatherData(city, apiKey);
         return (int) parseTemperatureCelsius(weatherData);
     }
 
     public static int basedTemperatureLocation() {  // Will output the wheater based on the location of the user
-        String[] data_location = getDataLocation();
-        String city = data_location[0];
+        String city = getCity();
         String weatherData = getWeatherData(city, apiKey);
         return (int) parseTemperatureCelsius(weatherData);
     }
@@ -180,7 +194,7 @@ public class Data {
     }
 
     public static VBox searchResultsContainer() {  // Results Data Container
-        VBox searchContainer = new VBox(10);
+        VBox searchContainer = new VBox(5);
         Table = new TableView<>();
         TableColumn<Search, String> cityColumn = new TableColumn<>("City");
         TableColumn<Search, String> countryColumn = new TableColumn<>("Country");
@@ -201,16 +215,16 @@ public class Data {
         searchContainer.getChildren().add(Table);
 
         return searchContainer;
-     }
+    }
 
-     public  static void performSearch() {
+    public static void performSearch() {
         try {
             String searchString = Main.citySearchField.getText();
             String[][] Results = searchResult(searchString);
             ObservableList<Search> Data = FXCollections.observableArrayList();
 
             for (int i = 0;  i < Results[0].length;  i++) {
-                if (Check(Results[i])) {
+                if (Check(Results)) {
                     Data.add(new Search(
                             Results[0][i], // City
                             Results[1][i], // Country
@@ -218,16 +232,16 @@ public class Data {
                             Results[3][i] // Country Code
                     ));
                 } else {  // todo: Make an error message
-                   break;  // Stops the loop
+                    break;  // Stops the loop
                 }
             }
             Table.setItems(Data);
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();   // todo: Make an error message
         }
-     }
+    }
 
-     public static String[] getData(TableView<Search> Table) {
+    public static String[] getData(TableView<Search> Table) {
         try {
             ObservableList<Search> selectedItems = Table.getSelectionModel().getSelectedItems();
 
@@ -247,6 +261,6 @@ public class Data {
         } catch (NullPointerException e) {
             return null; // todo: Make an error message
         }
-     }
+    }
 }
 
