@@ -29,7 +29,7 @@ public class Data {
 
     private static String Public_IP = PublicIPFinder();
     private static final String DataPath = "data\\GeoLite2-City.mmdb";
-    private static final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f"; // todo: hide it somewhere and hook it from the web
+    
     public static TableView<Search> Table;
 
     private static boolean Check(String[][] arr) {  // Check if is there any null value in the arrays
