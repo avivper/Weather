@@ -1,23 +1,36 @@
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class City extends BorderPane {
 
     public City(String city) {
         Data.createClock();
         Main.clock = new Label();
+        Main.Status = new Label();
+
+        Group[] ForecastTable = new Group[5];
+        Rectangle[] forecastData = new Rectangle[5];
+        Label[] ForecastLabel = new Label[5];
+        Label[] Days = new Label[5];
+
+        double[] temperatureForecast = Data.getForecast(city);
 
         HBox clockContainer = new HBox();
+        HBox forecastContainer = new HBox();
         VBox dataContainer = new VBox();
-        // todo: make a forecast container
 
-        Label City = new Label(city);
+        Label cityLabel = new Label(city);
         Label Temperature = new Label((
                 Data.getTemperature(city)
         ) + " °C");
@@ -25,85 +38,123 @@ public class City extends BorderPane {
         // Implement CSS
         Main.clock.setId("Clock");
         Temperature.setId("basedTemperature");
-        City.setId("city");
+        cityLabel.setId("city");
 
         // Top Container
+        Region region = new Region();
+        HBox.setHgrow(region, Priority.ALWAYS);
         clockContainer.setPadding(new Insets(10));
-        clockContainer.setAlignment(Pos.TOP_RIGHT);
-        clockContainer.getChildren().add(Main.clock);
+        clockContainer.getChildren().addAll(Main.Status, region, Main.clock);
 
+        // Central Container
         dataContainer.setPadding(new Insets(0, 10, 0, 0));
         dataContainer.setSpacing(5);
-        dataContainer.getChildren().add(0, City);
+        dataContainer.getChildren().add(0, cityLabel);
         dataContainer.getChildren().add(1, Temperature);
         dataContainer.setAlignment(Pos.TOP_CENTER);
 
+        // Forecast Container
+        if (temperatureForecast.length == forecastData.length) {
+
+            LocalDate today = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE");
+            double labelX = 10;
+            double labelY = 10;
+
+            for (int i = forecastData.length - 1; i > -1; i--) {
+                int temperature = (int) temperatureForecast[i];
+                LocalDate date = today.plusDays(i + 1);
+
+                Days[i] = new Label(date.format(formatter));
+                Days[i].setId("Day");
+                Days[i].setLayoutX(labelX);
+                Days[i].setLayoutY(labelY);
+
+                ForecastLabel[i] = new Label(temperature + " °C");
+                ForecastLabel[i].setId("Forecast");
+                ForecastLabel[i].setLayoutX(labelX);
+                ForecastLabel[i].setLayoutY(labelY + 40);
+
+                forecastData[i] = Main.createForecastSquare();
+                forecastData[i].setOpacity(0.4);
+                forecastData[i].setFill(Color.BLACK);
+
+                ForecastTable[i] = new Group(forecastData[i], ForecastLabel[i], Days[i]);
+                forecastContainer.getChildren().add(0, ForecastTable[i]);
+            }
+        }
+
+        forecastContainer.setSpacing(10);
+        forecastContainer.setPadding(new Insets(5));
+        forecastContainer.setAlignment(Pos.BOTTOM_CENTER);
+        Clock.setStatus(this); // Apply the appropriate background based on the hour
+
         this.setTop(clockContainer);
         this.setCenter(dataContainer);
-
-        Clock.setCityBackground(this); // Apply the appropriate background based on the hour
-
+        this.setBottom(forecastContainer);
     }
 }
 
 class addCity {
+    public static List<String> Cities = new ArrayList<>();
 
     public static Button[] Tabs;
     private static int buttonCount = 0;
+    public static String currentLayout;
 
     public static void addTab(String[] data) {
         if (data != null && data.length >= 3) {
-            String city = data[0];
+
+            String city = data[0]; // City
+            String province = data[2]; // Province
             String code = data[3]; // Country Code
 
-            // Check if the button with the same city already exists in the sidebar
-            // Check if the button with the same city already exists in the sidebar
-            for (Node node : Main.sidebarCities.getChildren()) {  // node represents each child node during each iteration.
-                if (node instanceof VBox sidebar) {  // Checks if node is instance of VBox, if it is the for each loop will execute
-                    for (Node button : sidebar.getChildren()) {  // For each loop for each child node in sidebar
-                        if (button instanceof Button &&
-                                ((Button) button).getText().equals(city + ", " + code)) {  // Check if the button is instance of the button, if it is have equal string it will stop
-                            // todo: Make an error message
-                            break;
-                        } // To summarize: Checks the VBox container if it's true -> Checks all the buttons in the sidebar ->
-                    } // If the text's button is equal, it will break
+            String name = city + ", " + code;
+
+            for (String search : Cities) {
+                if (search.equals(name + " " + province)) {
+                    // todo: make an error message
+                    return;
                 }
             }
 
-            // Creating a new button for the sidebar
             if (buttonCount < 11) {
-                buttonCount++; // Increasing the count for the buttons
-                Tabs[buttonCount] = new Button(city + ", " + code);  // Setting the city and the country code as the name of the button
-                Button newButton = Tabs[buttonCount];  // a new variable new
+                Cities.add(name + " " + province);  // Add a new city to the list
+                buttonCount++;  // Increase the button count
+                Tabs[buttonCount] = new Button(name);  // create a new button in the array
+                Button newButton = Tabs[buttonCount];  // Assign a new variable
 
-                newButton.setOnAction(
+                newButton.setId("newButton");  // Implement CSS
+
+                newButton.setOnAction(  // Layout switch
                         event -> {
-                            Main.HomeisOpen = false;
-                            switchLayout(city); // Call a method to switch to a new layout
+                            if (currentLayout == null || !currentLayout.equals(name)) {
+                                Main.HomeisOpen = false;
+                                switchLayout(city);
+                                currentLayout = name;
+                            }
                         }
                 );
 
-                newButton.setId("newButton");  // Implement CSS
-                // Creating new VBox to contain the new button
-                VBox sidebar = new VBox();
-                sidebar.getChildren().add(0, Tabs[buttonCount]); // Add the button to the new VBox
-                sidebar.setSpacing(10); // Add spacing between buttons
+                HBox newContainer = new HBox();
+                newContainer.getChildren().add(0, newButton);
+                newContainer.setAlignment(Pos.TOP_CENTER);
+                newContainer.setFillHeight(true);
 
-                // Consider to use this print in the final code
-                System.out.println("Number of buttons that is exist: "+ buttonCount);
-                Main.sidebarCities.getChildren().add(sidebar);
-            } else if (buttonCount > 11) {  // todo: Make an error message
-                // Check if the buttonCount is at the limit
-                System.out.println("You have passed the amount of buttons allowed: " + buttonCount);
+                Main.sidebarCities.getChildren().add(newContainer);
+            } else if (buttonCount > 11) {  // Max: 12
+                // todo: Make an error message for reaching maximum buttons
+                System.out.println(buttonCount + " Passed the amount of buttons");
             }
-        } else { // todo: Make an error message
-            System.out.println(buttonCount + " Invalid data. Cannot add tab to the sidebar.");
         }
     }
 
+
+
     private static void switchLayout(String newCity) {
-        City city = new City(newCity);
-        BorderPane root = Main.getMainRoot();
-        root.setCenter(city);
+            City city = new City(newCity);
+            BorderPane root = Main.getMainRoot();
+            root.setCenter(city);
     }
+
 }

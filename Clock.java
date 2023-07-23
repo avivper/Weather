@@ -3,6 +3,7 @@ import javafx.animation.Timeline;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 
+import java.awt.*;
 import java.util.Calendar;
 
 public class Clock {
@@ -16,12 +17,23 @@ public class Clock {
         return calendar;
     }
 
-    public static void setCityBackground(BorderPane root) {
+    public static void setStatus(BorderPane root) {
         if (root != null) {
             Calendar calendar = createCalendar();
             hour = calendar.get(Calendar.HOUR_OF_DAY);
+            Main.Status.setId("city");
 
-            if (hour >= 19 || hour < 5) {
+            if (hour >= 22 || hour < 5) {
+                Main.Status.setText("Good Night");
+            } else if (hour >= 19) {
+                Main.Status.setText("Good Evening");
+            } else if (hour >= 12) {
+                Main.Status.setText("Have a nice noon");
+            } else {
+                Main.Status.setText("Good Morning");
+            }
+
+            if (hour >= 20 || hour < 5) {
                 root.getStyleClass().remove("day");
                 root.getStyleClass().add("night");
             } else {

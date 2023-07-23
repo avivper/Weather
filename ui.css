@@ -21,6 +21,20 @@
     -fx-font-family: "Segoe UI";
 }
 
+#Day {
+   -fx-font-size: 15px;
+   -fx-text-fill: #808080;
+   -fx-font-weight: bold;
+   -fx-font-family: "Segoe UI";
+}
+
+#Forecast {
+   -fx-font-size: 15px;
+   -fx-text-fill: #fbf8f3;
+   -fx-font-weight: bold;
+   -fx-font-family: "Segoe UI";
+}
+
 #Clock {
     -fx-font-size: 15px;
     -fx-text-fill: #ffffff;
@@ -144,4 +158,9 @@
 #newButton:hover {
      -fx-background-color: #1a237e;
      -fx-text-fill: #ffffff;
+}
+
+.transparent-square {
+    -fx-fill: rgba(0, 0, 255, 0.7);
+    -fx-background-color: #D3D3D3;
 }

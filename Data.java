@@ -1,5 +1,8 @@
 import java.io.*;
 import java.net.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.maxmind.geoip2.record.City;
@@ -12,14 +15,11 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.CSVParser;
@@ -29,7 +29,7 @@ public class Data {
 
     private static String Public_IP = PublicIPFinder();
     private static final String DataPath = "data\\GeoLite2-City.mmdb";
-    
+    private static final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f"; // todo: hide it somewhere and hook it from the web
     public static TableView<Search> Table;
 
     private static boolean Check(String[][] arr) {  // Check if is there any null value in the arrays
@@ -42,8 +42,8 @@ public class Data {
         return true;  // Yay, that's work :D
     }
 
-    public static void createClock() {
-        new Clock();
+    public static Clock createClock() {  // todo: fix that
+        return new Clock();
     }
 
     // todo: make it more steady with various url services
@@ -125,6 +125,58 @@ public class Data {
         return temperatureKelvin - 273.15;
     }
 
+    private static double[] parseTemperatureForecast(String forecastData) {
+        double[] temperatureForecast = new double[5];
+        JSONObject jsonObject = new JSONObject(forecastData);
+        JSONArray listArray = jsonObject.getJSONArray("list");
+
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        int forecastDayCount = 0;
+        for (int i = 0; i < listArray.length(); i++) {
+            JSONObject item = listArray.getJSONObject(i);
+            String dtTxt = item.getString("dt_txt");
+            LocalDateTime dateTime = LocalDateTime.parse(dtTxt, formatter);
+            LocalDate date = dateTime.toLocalDate();
+
+            if (date.isAfter(today) && forecastDayCount < 5) {
+                JSONObject mainObject = item.getJSONObject("main");
+                double temperatureKelvin = mainObject.getDouble("temp");
+                temperatureForecast[forecastDayCount] = temperatureKelvin - 273.15;
+                forecastDayCount++;
+            }
+        }
+        return temperatureForecast;
+    }
+
+    public static double[] getForecast(String city) {
+        String apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiKey;
+        double[] temperatureForecast = new double[5];
+
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");  // Making a request
+            connection.setConnectTimeout(5000);
+            connection.connect();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                try (InputStream inputStream = connection.getInputStream();
+                Scanner scanner = new Scanner(new InputStreamReader(inputStream))) {
+                    String forecastData = scanner.useDelimiter("\\A").next();
+                    // Parse the forecast data to get the temperature for each day
+                    temperatureForecast = parseTemperatureForecast(forecastData);
+                    return temperatureForecast;
+                }
+            } else {
+                System.out.println("Failed - 144");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return temperatureForecast;
+    }
 
     // todo: Maybe overhaul this method to make it even better and faster
     public static String[][] searchResult(String searchString) {  // todo: switch this later to private String[][] searchResult
