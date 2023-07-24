@@ -18,6 +18,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -176,6 +178,14 @@ public class Data {
             e.printStackTrace();
         }
         return temperatureForecast;
+    }
+
+    public static Image Status (String status) throws FileNotFoundException {
+        if (status.equals("sunny")) {
+            InputStream stream = new FileInputStream("data\\status\\sunny.png");
+            return new Image(stream);
+        }
+        return null;
     }
 
     // todo: Maybe overhaul this method to make it even better and faster

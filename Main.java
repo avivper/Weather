@@ -4,12 +4,18 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -65,14 +71,49 @@ public class Main  extends Application {
         MainRoot.setCenter(CenterContent);  // Set the Home Stage on the center
         MainRoot.setLeft(sidebarCities);
 
+        InputStream stream = new FileInputStream("data\\status\\weather-app.png");
+
         Scene scene = new Scene(MainRoot);
 
         primaryStage.initStyle(StageStyle.UNDECORATED);  // Hide the OS closeBar
+        primaryStage.getIcons().add(new Image(stream));
         primaryStage.setResizable(false); // Prevent from the user to resize the window
+        primaryStage.setTitle("Weather App");
         primaryStage.setWidth(800);
         primaryStage.setHeight(600);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    public static void Error() {  // todo: continue to work on this
+        Stage errorStage = new Stage();
+        BorderPane root = new BorderPane();
+
+        HBox closeContainer = new HBox();
+        VBox ErrorContainer = new VBox();
+        HBox ButtonContainer = new HBox();
+
+        Label Error = new Label("Error Occurred");
+        Button CancelButton = new Button("Cancel");
+
+        CancelButton.setOnAction(
+                event-> {
+                    errorStage.close();
+                }
+        );
+
+        closeContainer.getChildren().add(0, createCloseBar(errorStage));
+        ErrorContainer.getChildren().add(0, Error);
+        ErrorContainer.setAlignment(Pos.CENTER);
+        ButtonContainer.getChildren().add(0, CancelButton);
+        ButtonContainer.setAlignment(Pos.BOTTOM_CENTER);
+
+        Scene scene = new Scene(root);
+
+        errorStage.setScene(scene);
+        errorStage.setWidth(200);
+        errorStage.setHeight(200);
+        errorStage.show();
     }
 
     private static void search() {
@@ -177,6 +218,7 @@ public class Main  extends Application {
                 event -> {
                     if (!SearchisOpen) {
                         search();
+                        Error();
                     }
                 }
         );
@@ -236,6 +278,7 @@ public class Main  extends Application {
         Rectangle[] forecastData = new Rectangle[5];
         Label[] ForecastLabel = new Label[5];
         Label[] Days = new Label[5];
+        ImageView[] forecastStatus = new ImageView[5];
 
         double[] temperatureForecast = Data.getForecast(HomeCity);
 
@@ -266,34 +309,45 @@ public class Main  extends Application {
         dataContainer.setAlignment(Pos.TOP_CENTER);
 
         // Forecast data
-        if (temperatureForecast.length == forecastData.length) {
+        try {
+            if (temperatureForecast.length == forecastData.length) {
 
-            LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE");
-            double labelX = 10;
-            double labelY = 10;
+                LocalDate today = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE");
+                double labelX = 10;
+                double labelY = 10;
 
-            for (int i = forecastData.length - 1; i > -1; i--) {
-                int temperature = (int) temperatureForecast[i];
-                LocalDate date = today.plusDays(i + 1);
+                for (int i = forecastData.length - 1; i > -1; i--) {
+                    int temperature = (int) temperatureForecast[i];
+                    LocalDate date = today.plusDays(i + 1);
+                    Image status = Data.Status("sunny");
 
-                Days[i] = new Label(date.format(formatter));
-                Days[i].setId("Day");
-                Days[i].setLayoutX(labelX);
-                Days[i].setLayoutY(labelY);
+                    forecastStatus[i] = new ImageView();
+                    forecastStatus[i].setImage(status);
+                    forecastStatus[i].setX(labelX);
+                    forecastStatus[i].setY(labelY + 70);
 
-                ForecastLabel[i] = new Label(temperature + " °C");
-                ForecastLabel[i].setId("Forecast");
-                ForecastLabel[i].setLayoutX(labelX);
-                ForecastLabel[i].setLayoutY(labelY + 40);
+                    Days[i] = new Label(date.format(formatter));
+                    Days[i].setId("Day");
+                    Days[i].setLayoutX(labelX);
+                    Days[i].setLayoutY(labelY);
 
-                forecastData[i] = createForecastSquare();
-                forecastData[i].setOpacity(0.4);
-                forecastData[i].setFill(Color.BLACK);
+                    ForecastLabel[i] = new Label(temperature + " °C");
+                    ForecastLabel[i].setId("Forecast");
+                    ForecastLabel[i].setLayoutX(labelX);
+                    ForecastLabel[i].setLayoutY(labelY + 40);
 
-                ForecastTable[i] = new Group(forecastData[i], ForecastLabel[i], Days[i]);
-                forecastContainer.getChildren().add(0, ForecastTable[i]);
+                    forecastData[i] = createForecastSquare();
+                    forecastData[i].setOpacity(0.4);
+                    forecastData[i].setFill(Color.BLACK);
+
+                    ForecastTable[i] = new Group(forecastData[i], ForecastLabel[i],
+                            Days[i], forecastStatus[i]);
+                    forecastContainer.getChildren().add(0, ForecastTable[i]);
+                }
             }
+        } catch (FileNotFoundException e) {  // todo: Make an error
+            e.printStackTrace();
         }
 
         forecastContainer.setSpacing(10);
@@ -333,7 +387,12 @@ public class Main  extends Application {
     }
 
     private static CloseBar createCloseBar(Stage stage) {
-        return new CloseBar(stage);
+        try {
+            return new CloseBar(stage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
