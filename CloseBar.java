@@ -81,3 +81,78 @@ public class CloseBar extends HBox {
         // User now can drag the CloseBar smoothly based on X and Y
     }
 }
+
+/*
+public static void scanCity() {
+    Button removeButton = null;
+    boolean foundCity = false; // Flag to check if the city is found
+
+    for (Node node : Main.getMainRoot().getChildren()) {
+        if (node instanceof BorderPane centerRoot) {
+
+            for (Node vbox : centerRoot.getChildren()) {
+                if (vbox instanceof VBox home) {
+
+                    for (Node label : home.getChildren()) {
+                        if (label instanceof Label City) {
+
+                            if (!((Label) label).getText().equals(Main.HomeCity)) {
+
+                                if (removeButton == null && !foundCity) {
+                                    removeButton = new Button();
+                                    removeButton.setId("remove-button");
+
+                                    Main.titleBar.getChildren().add(3, removeButton);
+                                    HBox.setMargin(removeButton, new Insets(10, 0, 10, 0));
+                                }
+                            } else {
+                                foundCity = true; // City is found, set the flag
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Remove the button if the city is not found
+    if (!foundCity && removeButton != null) {
+        Main.titleBar.getChildren().remove(removeButton);
+        removeButton = null;
+    }
+}
+
+
+
+        for (Node node : Main.getMainRoot().getChildren()) {
+            if (node instanceof BorderPane centerRoot) {
+
+                for (Node vbox : centerRoot.getChildren()) {
+                    if (vbox instanceof VBox home) {
+
+                        for (Node label : home.getChildren()) {
+                            if (label instanceof Label City) {
+
+                                if (!((Label) label).getText().
+                                        equals(Main.HomeCity)) {
+
+                                    if (removeButton == null) {
+                                        removeButton = new Button();
+                                        removeButton.setId("remove-button");
+
+                                        Main.titleBar.getChildren().add(3, removeButton);
+                                        HBox.setMargin(removeButton, new Insets(10, 0, 10, 0));
+                                    }
+                                }
+                            } else {
+                                if (removeButton != null) {
+                                    Main.titleBar.getChildren().remove(removeButton);
+                                    removeButton = null;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+ */

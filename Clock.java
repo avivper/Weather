@@ -2,8 +2,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
-
-import java.awt.*;
 import java.util.Calendar;
 
 public class Clock {
@@ -41,7 +39,9 @@ public class Clock {
                 root.getStyleClass().add("day");
             }
 
-        } // todo: Make an error message with else statement
+        } else {
+            Error.raiseError(0);
+        }
     }
 
     public Clock() {

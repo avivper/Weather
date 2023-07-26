@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -19,6 +20,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class Main  extends Application {
 
@@ -27,6 +29,7 @@ public class Main  extends Application {
 
     public static Label clock;
     public static Label Status;
+    public static Button removeButton;
     public static TextField citySearchField;
     public static String HomeCity = Data.getCity();
 
@@ -34,6 +37,7 @@ public class Main  extends Application {
     public static BorderPane MainRoot;
     public static BorderPane CenterContent;
     public static VBox sidebarCities;  // Container for new Cities that was added by the user
+    public static HBox titleBar;
 
     public static void main(String[] args) {
         launch(args);
@@ -85,37 +89,6 @@ public class Main  extends Application {
         primaryStage.show();
     }
 
-    public static void Error() {  // todo: continue to work on this
-        Stage errorStage = new Stage();
-        BorderPane root = new BorderPane();
-
-        HBox closeContainer = new HBox();
-        VBox ErrorContainer = new VBox();
-        HBox ButtonContainer = new HBox();
-
-        Label Error = new Label("Error Occurred");
-        Button CancelButton = new Button("Cancel");
-
-        CancelButton.setOnAction(
-                event-> {
-                    errorStage.close();
-                }
-        );
-
-        closeContainer.getChildren().add(0, createCloseBar(errorStage));
-        ErrorContainer.getChildren().add(0, Error);
-        ErrorContainer.setAlignment(Pos.CENTER);
-        ButtonContainer.getChildren().add(0, CancelButton);
-        ButtonContainer.setAlignment(Pos.BOTTOM_CENTER);
-
-        Scene scene = new Scene(root);
-
-        errorStage.setScene(scene);
-        errorStage.setWidth(200);
-        errorStage.setHeight(200);
-        errorStage.show();
-    }
-
     private static void search() {
         SearchisOpen = true;
         Stage searchStage = new Stage();
@@ -163,10 +136,10 @@ public class Main  extends Application {
                             addCity.addTab(data); // Add the city to the GUI
                             SearchisOpen = false;  // Switch to off that the user can open again the window
                             searchStage.close();  // Closing the window
-                        } catch (Exception e) {  // todo: Make an error message
-                            e.printStackTrace();
+                        } catch (Exception e) {
+                            Error.raiseError(100);
                         }
-                    } else {  // todo: Make an error message
+                    } else {
                         SearchisOpen = true; // Keeping the user on the window
                     }
                 }
@@ -206,9 +179,10 @@ public class Main  extends Application {
 
     // Layouts
     private HBox titleBar() {
-        HBox titleBar = new HBox();
+        titleBar = new HBox();
         Label title = new Label("Weather App");
         Button plusButton = new Button();
+        removeButton = new Button();
 
         // Implement the CSS
         plusButton.setId("plus-button");
@@ -218,7 +192,29 @@ public class Main  extends Application {
                 event -> {
                     if (!SearchisOpen) {
                         search();
-                        Error();
+                    }
+                }
+        );
+
+        removeButton.setOnAction(
+                event -> {
+                    for (Node node : sidebarCities.getChildren()) {
+                        if (node instanceof HBox buttons) {
+                            for (Node button : buttons.getChildren()) {
+                                if (button instanceof  Button) {
+                                    showConfirmation(
+                                            result -> {
+                                                boolean decision = result;
+                                                if (decision) {
+                                                    System.out.println("208");
+                                                } else {  // todo: finish this
+                                                    System.out.println("210");
+                                                }
+                                            }
+                                    );
+                                }
+                            }
+                        }
                     }
                 }
         );
@@ -228,7 +224,7 @@ public class Main  extends Application {
         titleBar.setPadding(new Insets(5));
         titleBar.setSpacing(10);
         titleBar.setId("titleBar");
-        titleBar.getChildren().addAll(title, region, plusButton);
+        titleBar.getChildren().addAll(title, region, removeButton, plusButton);
 
         return titleBar;
     }
@@ -247,6 +243,7 @@ public class Main  extends Application {
                     if (!HomeisOpen) {
                         HomeisOpen = true;
                         switchHome();
+                        titleBar.getChildren().get(2).setVisible(false);
                         addCity.currentLayout = null;
                     }
                 }
@@ -346,8 +343,8 @@ public class Main  extends Application {
                     forecastContainer.getChildren().add(0, ForecastTable[i]);
                 }
             }
-        } catch (FileNotFoundException e) {  // todo: Make an error
-            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            Error.raiseError(348);
         }
 
         forecastContainer.setSpacing(10);
@@ -386,7 +383,12 @@ public class Main  extends Application {
         MainRoot.setCenter(home);
     }
 
-    private static CloseBar createCloseBar(Stage stage) {
+    public void showConfirmation(Consumer<Boolean> callback) {
+        Error.raiseError(1);
+        Error.user_confirmed = callback;
+    }
+
+    public static CloseBar createCloseBar(Stage stage) {
         try {
             return new CloseBar(stage);
         } catch (IOException e) {

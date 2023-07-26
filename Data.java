@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.maxmind.geoip2.record.City;
-import com.maxmind.geoip2.record.Country;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.DatabaseReader;
@@ -19,7 +18,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,6 +29,7 @@ public class Data {
 
     private static String Public_IP = PublicIPFinder();
     private static final String DataPath = "data\\GeoLite2-City.mmdb";
+    private static final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f"; // todo: hide it somewhere and hook it from the web
     public static TableView<Search> Table;
 
     private static boolean Check(String[][] arr) {  // Check if is there any null value in the arrays
@@ -62,10 +61,12 @@ public class Data {
                     Public_IP = scanner.next();
                     return Public_IP;
                 }
-            } else {  // todo: make an error message
+            } else {
+                Error.raiseError(144);
                 return "Error: Unable to fetch public IP. HTTP Response Code: " + http_connection.getResponseCode();
             }
         } catch (IOException e) {
+            Error.raiseError(144);
             return "Error " + e.getMessage();
         }
     }
@@ -81,7 +82,8 @@ public class Data {
                 e.printStackTrace();
                 return null;
             }
-        } else {  // todo: make an error message
+        } else {
+            Error.raiseError(0);
             return null;
         }
     }
@@ -184,6 +186,7 @@ public class Data {
             InputStream stream = new FileInputStream("data\\status\\sunny.png");
             return new Image(stream);
         }
+        Error.raiseError(348);
         return null;
     }
 
@@ -309,6 +312,7 @@ public class Data {
                     Data.add(new Search("", "", "", ""));
                     Table.setPlaceholder(notFound);
                 } else {  // todo: Make an error message
+                    Error.raiseError(100);
                     break; // Stop the loop
                 }
             }
@@ -316,7 +320,8 @@ public class Data {
             Table.setItems(Data);
 
         } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();   // todo: Make an error message
+            Error.raiseError(0);
+            e.printStackTrace();
         }
     }
 
@@ -335,10 +340,12 @@ public class Data {
                 } // [city, country, province, code]
                 return selectedData;
             } else {
-                return null; // todo: Make an error message
+                Error.raiseError(100);
+                return null;
             }
         } catch (NullPointerException e) {
-            return null; // todo: Make an error message
+            Error.raiseError(100);
+            return null;
         }
     }
 }

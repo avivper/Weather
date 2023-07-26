@@ -3,6 +3,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableRow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -129,7 +130,10 @@ class addCity {
                 newButton.setOnAction(  // Layout switch
                         event -> {
                             if (currentLayout == null || !currentLayout.equals(name)) {
+                                Main.removeButton.setId("remove-button");
+                                Main.titleBar.getChildren().get(2).setVisible(true);
                                 Main.HomeisOpen = false;
+
                                 switchLayout(city);
                                 currentLayout = name;
                             }
@@ -143,8 +147,7 @@ class addCity {
 
                 Main.sidebarCities.getChildren().add(newContainer);
             } else if (buttonCount > 11) {  // Max: 12
-                // todo: Make an error message for reaching maximum buttons
-                System.out.println(buttonCount + " Passed the amount of buttons");
+                Error.raiseError(146);
             }
         }
     }
@@ -152,9 +155,9 @@ class addCity {
 
 
     private static void switchLayout(String newCity) {
-            City city = new City(newCity);
-            BorderPane root = Main.getMainRoot();
-            root.setCenter(city);
+        City city = new City(newCity);
+        BorderPane root = Main.getMainRoot();
+        root.setCenter(city);
     }
 
 }
