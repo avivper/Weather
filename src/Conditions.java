@@ -13,18 +13,18 @@ public class Conditions {
     /*
     todo: get images for:
       Clear - V
-      Clouds -
-      Rain -
-      Drizzle -
-      Thunderstorm -
-      Snow -
-      Mist -
-      Smoke -
-      Haze -
-      Dust -
-      Fog -
+      Clouds - V
+      Rain - V
+      Drizzle - V
+      Thunderstorm - V
+      Snow - V
+      Mist - V
+      Smoke - V
+      Haze - V
+      Dust - V
+      Fog - V
       Squall -
-      Tornado -
+      Tornado - V
      */
 
     static {
