@@ -1,8 +1,13 @@
 import javafx.scene.image.Image;
+import javafx.scene.shape.SVGPath;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,36 +17,24 @@ public class Conditions {
 
     /*
     todo: get images for:
-      Clear - V
-      Clouds - V
-      Rain - V
-      Drizzle - V
-      Thunderstorm - V
-      Snow - V
-      Mist - V
-      Smoke - V
-      Haze - V
-      Dust - V
-      Fog - V
       Squall -
-      Tornado - V
      */
 
     static {
         // set weather conditions and their corresponding image file paths to the map
-        statusToImagePath.put("Clear", "data/status/Clear.png");
-        statusToImagePath.put("Clouds", "data/status/Clouds.png");
-        statusToImagePath.put("Rain", "data/status/Rain.png");
-        statusToImagePath.put("Drizzle", "data/status/Drizzle.png");
-        statusToImagePath.put("Thunderstorm", "data/status/Thunderstorm.png");
-        statusToImagePath.put("Snow", "data/status/Snow.png");
-        statusToImagePath.put("Mist", "data/status/Mist.png");
-        statusToImagePath.put("Smoke", "data/status/Smoke.png");
-        statusToImagePath.put("Haze", "data/status/Haze.png");
-        statusToImagePath.put("Dust", "data/status/Dust.png");
-        statusToImagePath.put("Fog", "data/status/Fog.png");
-        statusToImagePath.put("Squall", "data/status/Squall.png");
-        statusToImagePath.put("Tornado", "data/status/Tornado.png");
+        statusToImagePath.put("Clear", "data\\status\\Clear.png"); // Tested
+        statusToImagePath.put("Clouds", "data\\status\\Clouds.png"); // Tested
+        statusToImagePath.put("Rain", "data\\status\\Rain.png");  // Tested
+        statusToImagePath.put("Drizzle", "data\\status\\Drizzle.png");  // Light rain
+        statusToImagePath.put("Thunderstorm", "data\\status\\Thunderstorm.png");
+        statusToImagePath.put("Snow", "data\\status\\Snow.png");
+        statusToImagePath.put("Mist", "data\\status\\Mist.png");
+        statusToImagePath.put("Smoke", "data\\status\\Smoke.png");
+        statusToImagePath.put("Haze", "data\\status\\Haze.png");
+        statusToImagePath.put("Dust", "data\\status\\Dust.png");
+        statusToImagePath.put("Fog", "data\\status\\Fog.png");
+        statusToImagePath.put("Squall", "data\\status\\Squall.png");
+        statusToImagePath.put("Tornado", "data\\status\\Tornado.png");
     }
 
     public static Image getStatusImage(String status) throws FileNotFoundException {
@@ -55,4 +48,6 @@ public class Conditions {
             return null;
         }
     }
+
 }
+

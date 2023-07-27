@@ -3,10 +3,14 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,23 +21,24 @@ public class City extends BorderPane {
 
     public City(String city) {
 
-        Clock.createClock();
-        Main.clock = new Label();
-        Main.Status = new Label();
+        Clock.createClock();  // Creating the clock for the user based on location's time
+        Main.clock = new Label();  // Clock label
+        Main.Status = new Label();  // Will show a greeting message based on the time
 
-        Group[] ForecastTable = new Group[5];
-        Rectangle[] forecastData = new Rectangle[5];
-        Label[] ForecastLabel = new Label[5];
-        Label[] Days = new Label[5];
+        Group[] ForecastTable = new Group[5]; // Will group all the data to the square, contains 5 because 5 different data
+        Rectangle[] forecastData = new Rectangle[5]; // The data will present in this square
+        Label[] ForecastLabel = new Label[5]; // Array of temperature forecast based on the location
+        Label[] Days = new Label[5]; // Array of days, it will contain only 5 days
+        ImageView[] forecastStatus = new ImageView[5];  // Array of images that will display the condition of the weather
 
-        double[] temperatureForecast = Data.getForecast(city);
+        double[] temperatureForecast = Data.getForecast(city); // Getting the forecast for the next 5 days
 
-        HBox clockContainer = new HBox();
-        HBox forecastContainer = new HBox();
-        VBox dataContainer = new VBox();
+        HBox clockContainer = new HBox();  // Will contain the clock in this container, will be declared at the top of the GUI
+        HBox forecastContainer = new HBox();  // Will contain the data of the forecast
+        VBox dataContainer = new VBox();  // Current weather data values and forecast values
 
-        Label cityLabel = new Label(city);
-        Label Temperature = new Label((
+        Label cityLabel = new Label(city);  // City label based on the user's choices
+        Label Temperature = new Label((  // Getting the temperature of the city that was added by the user
                 Data.getTemperature(city)
         ) + " °C");
 
@@ -56,34 +61,46 @@ public class City extends BorderPane {
         dataContainer.setAlignment(Pos.TOP_CENTER);
 
         // Forecast Container
-        if (temperatureForecast.length == forecastData.length) {
+        try {
+            if (temperatureForecast.length == forecastData.length) { // If the forecast data is equal to the array length, should be 5
 
-            LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE");
-            double labelX = 10;
-            double labelY = 10;
+                LocalDate today = LocalDate.now(); // Getting today's
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE"); // Changing this to day string
+                double labelX = 10; // Graph positioning
+                double labelY = 10;
+                String[] conditions = Data.getWeatherForecast(city);
 
-            for (int i = forecastData.length - 1; i > -1; i--) {
-                int temperature = (int) temperatureForecast[i];
-                LocalDate date = today.plusDays(i + 1);
+                for (int i = forecastData.length - 1; i > -1; i--) { // Reverse loop to add all the data in certain order
+                    int temperature = (int) temperatureForecast[i];  // Converting the temperature to an integer in purpose to display an integer
+                    LocalDate date = today.plusDays(i + 1); // Increasing the day variable, I want to display the forecast, am I? =]
+                    Image status = Conditions.getStatusImage(conditions[i]);
 
-                Days[i] = new Label(date.format(formatter));
-                Days[i].setId("Day");
-                Days[i].setLayoutX(labelX);
-                Days[i].setLayoutY(labelY);
+                    forecastStatus[i] = new ImageView();  // Image
+                    forecastStatus[i].setImage(status);  // Get the image by status of the weather
+                    forecastStatus[i].setX(labelX);
+                    forecastStatus[i].setY(labelY + 70);
 
-                ForecastLabel[i] = new Label(temperature + " °C");
-                ForecastLabel[i].setId("Forecast");
-                ForecastLabel[i].setLayoutX(labelX);
-                ForecastLabel[i].setLayoutY(labelY + 40);
+                    Days[i] = new Label(date.format(formatter)); // Will present the string of the day (Sunday, Monday and etc)
+                    Days[i].setId("Day");
+                    Days[i].setLayoutX(labelX);
+                    Days[i].setLayoutY(labelY);
 
-                forecastData[i] = Main.createForecastSquare();
-                forecastData[i].setOpacity(0.4);
-                forecastData[i].setFill(Color.BLACK);
+                    ForecastLabel[i] = new Label(temperature + " °C"); // Will display the temperature number
+                    ForecastLabel[i].setId("Forecast");
+                    ForecastLabel[i].setLayoutX(labelX);
+                    ForecastLabel[i].setLayoutY(labelY + 40);
 
-                ForecastTable[i] = new Group(forecastData[i], ForecastLabel[i], Days[i]);
-                forecastContainer.getChildren().add(0, ForecastTable[i]);
+                    forecastData[i] = Main.createForecastSquare(); // Creating the square =], Calling the method from Main
+                    forecastData[i].setOpacity(0.4); // Weaken the color that will have a clear background effect
+                    forecastData[i].setFill(Color.BLACK); // Set to black
+
+                    ForecastTable[i] = new Group(forecastData[i], ForecastLabel[i],
+                            Days[i], forecastStatus[i]); // Assemble all the elements into one
+                    forecastContainer.getChildren().add(0, ForecastTable[i]);  // Add the group to the layout
+                }
             }
+        } catch (FileNotFoundException e) {
+            Error.raiseError(348); // Let's try to prevent this error :D
         }
 
         forecastContainer.setSpacing(10);

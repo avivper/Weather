@@ -9,12 +9,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.File;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Error extends Stage {
 
     private Label error;
+    private final String ErrorPath = "data\\css\\error.css";
     public static Consumer<Boolean> user_confirmed = decision -> {};
 
     public static void raiseError(int error) {
@@ -104,10 +106,13 @@ public class Error extends Stage {
 
         Scene scene = new Scene(root);
 
-        String cssPath = Objects.requireNonNull(
+        /*
+                String cssPath = Objects.requireNonNull(
                 getClass().getResource("error.css")
         ).toExternalForm();
-        scene.getStylesheets().add(cssPath);
+         */
+        
+        scene.getStylesheets().add(new File(ErrorPath).toURI().toString());
 
         this.initStyle(StageStyle.UNDECORATED);
         this.setResizable(false);

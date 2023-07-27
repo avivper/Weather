@@ -13,33 +13,32 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Main  extends Application {
 
     private static boolean SearchisOpen = false;  // Prevent from the user open multiple search Windows
     public static boolean HomeisOpen = true; // Prevent from the user to load Home and make the software slow
-    private boolean addHome = false;
+    private boolean addHome = false;  // Trigger for if statement to load once
 
     public static Label clock;
     public static Label Status;
     public static Button removeButton;
     public static TextField citySearchField;
-    public static String HomeCity = Data.getCity();
-    private String HomeAdd = null;
+    public static String HomeCity = Data.getCity();  // Gets the city based on the user's location
+    private String HomeAdd = null;  // Will get a specific string location for home layout
 
-    public static final String UIPath = "ui.css";
-    public static BorderPane MainRoot;
-    public static BorderPane CenterContent;
+    // Path for stylesheet
+    private static final String UIPath = "data\\css\\ui.css";
+    private static final String SearchPath = "data\\css\\search.css";
+
+    public static BorderPane MainRoot;   // The root of the entire software
+    public static BorderPane CenterContent;  // Will display the data
     public static VBox sidebarCities;  // Container for new Cities that was added by the user
-    public static HBox titleBar;
+    public static HBox titleBar;  // Container for title, plus for add cities and minus for remove cities
 
 
     @Override
@@ -47,20 +46,20 @@ public class Main  extends Application {
         init();  // Implement the css
 
         // Root layout
-        MainRoot = new BorderPane();
+        MainRoot = new BorderPane();  // Creating the root
+        CenterContent = createHome();  // Creating the home
+        sidebarCities = createSidebar();  // Creating the sidebar
 
-        HBox closeBar = createCloseBar(primaryStage);
-        HBox titleBar = titleBar();
-        sidebarCities = createSidebar();
+        HBox closeBar = createCloseBar(primaryStage);  // Creating the close bar that contains close and minimize buttons
+        HBox titleBar = titleBar();  // Creating the titlebar, will placed below the close bar
 
         VBox topContainer = new VBox(closeBar, titleBar);
-        CenterContent = createHome();
 
         MainRoot.setTop(topContainer);  // Setting the CloseBar and titlebar on top
         MainRoot.setCenter(CenterContent);  // Set the Home Stage on the center
         MainRoot.setLeft(sidebarCities);  // Set the Sidebar on the left
 
-        InputStream stream = new FileInputStream("data\\status\\weather-app.png");
+        InputStream stream = new FileInputStream("data\\icon.png");
 
         Scene scene = new Scene(MainRoot);
 
@@ -142,10 +141,12 @@ public class Main  extends Application {
 
         Scene scene = new Scene(root);
 
-        // Implement CSS
-        String cssPath = Objects.requireNonNull(
+        /*
+                String cssPath = Objects.requireNonNull(
                 Main.class.getResource("search.css")).toExternalForm();
-        scene.getStylesheets().add(cssPath);
+         */
+
+        scene.getStylesheets().add(new File(SearchPath).toURI().toString()); // Implement CSS
 
         searchStage.initStyle(StageStyle.UNDECORATED);  // Hide the OS Close bar and the Title Bar
         searchStage.setResizable(false);  // Prevent from window to   resize the window
@@ -166,8 +167,8 @@ public class Main  extends Application {
     private HBox titleBar() {
         titleBar = new HBox();  // Container
         Label title = new Label("Weather App");
-        Button plusButton = new Button();
-        removeButton = new Button();
+        Button plusButton = new Button();  // Creating a button that will implement the add of cities by user choice
+        removeButton = new Button();  // Creating a button that will remove cities from sidebar
 
         // Implement the CSS
         plusButton.setId("plus-button");
@@ -211,6 +212,7 @@ public class Main  extends Application {
 
         Region region = new Region();  // Making space between the buttons and the title
         HBox.setHgrow(region, Priority.ALWAYS);
+        HBox.setMargin(removeButton, new Insets(0, 10, 0, 10));  // Making the remove button to take a little bit space from plus button
         titleBar.setPadding(new Insets(5));
         titleBar.setId("titleBar");
         titleBar.getChildren().addAll(title, region, removeButton, plusButton);
@@ -254,14 +256,14 @@ public class Main  extends Application {
     private BorderPane createHome() {
 
         Clock.createClock();  // Creating the clock for the user based on location's time
-        clock = new Label();
-        Status = new Label();
+        clock = new Label(); // Clock label
+        Status = new Label(); // Will show a greeting message based on the time
 
         Group[] ForecastTable = new Group[5];  // Will group all the data to the square, contains 5 because 5 different data
         Rectangle[] forecastData = new Rectangle[5];  // The data will present in this square
         Label[] ForecastLabel = new Label[5];  // Array of temperature forecast based on the location
         Label[] Days = new Label[5];  // Array of days, it will contain only 5 days
-        ImageView[] forecastStatus = new ImageView[5];
+        ImageView[] forecastStatus = new ImageView[5]; // Array of images that will display the condition of the weather
 
         double[] temperatureForecast = Data.getForecast(HomeCity);  // Getting the forecast for the next 5 days
 
@@ -384,9 +386,12 @@ public class Main  extends Application {
 
     @Override
     public void init() {
-        Application.setUserAgentStylesheet(Objects.requireNonNull(
-                getClass().getResource(UIPath)).toExternalForm()
+        Application.setUserAgentStylesheet(new File(UIPath).toURI().toString());
+        /*
+                Application.setUserAgentStylesheet(Objects.requireNonNull(
+                getClass().getResource(new File(UIPath).toURI().toString())).toExternalForm()
         );
+         */
     }
 
     public static BorderPane getMainRoot() {
