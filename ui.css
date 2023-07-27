@@ -21,20 +21,6 @@
     -fx-font-family: "Segoe UI";
 }
 
-#Day {
-   -fx-font-size: 15px;
-   -fx-text-fill: #808080;
-   -fx-font-weight: bold;
-   -fx-font-family: "Segoe UI";
-}
-
-#Forecast {
-   -fx-font-size: 15px;
-   -fx-text-fill: #fbf8f3;
-   -fx-font-weight: bold;
-   -fx-font-family: "Segoe UI";
-}
-
 #Clock {
     -fx-font-size: 15px;
     -fx-text-fill: #ffffff;
@@ -82,6 +68,18 @@
 
 #plus-button {
     -fx-background-image: url('plus.png');
+    -fx-background-size: 20px 20px;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+    -fx-background-radius: 10px;
+}
+
+#remove-button {
+    -fx-background-image: url('remove.png');
     -fx-background-size: 20px 20px;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
@@ -160,7 +158,50 @@
      -fx-text-fill: #ffffff;
 }
 
-.transparent-square {
-    -fx-fill: rgba(0, 0, 255, 0.7);
-    -fx-background-color: #D3D3D3;
+#Day {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #fbf8f3;
+    -fx-font-family: "Segoe UI";
+}
+
+#Forecast {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #fbf8f3;
+    -fx-font-family: "Segoe UI";
+}
+
+.sidebar-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a237e;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-alignment: center;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #1a237e;
+    -fx-text-fill: #ffffff;
+}
+
+/* Make the buttons square by setting the same width and height */
+.sidebar-button:pressed {
+    -fx-background-color: #1a237e;
+    -fx-text-fill: #ffffff;
+}
+
+/* Make the buttons square by setting the same width and height */
+.sidebar-button:pressed {
+    -fx-background-color: #1a237e;
+    -fx-text-fill: #ffffff;
+}
+
+/* Set the same width and height for the buttons */
+.sidebar-button, .sidebar-button:hover, .sidebar-button:pressed {
+    -fx-min-width: 50px;
+    -fx-min-height: 50px;
+    -fx-max-width: 200px;
+    -fx-max-height: 200px;
 }

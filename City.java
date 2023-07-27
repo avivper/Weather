@@ -3,7 +3,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableRow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -11,6 +10,7 @@ import javafx.scene.shape.Rectangle;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class City extends BorderPane {
@@ -99,7 +99,7 @@ public class City extends BorderPane {
 class addCity {
     public static List<String> Cities = new ArrayList<>();
 
-    public static Button[] Tabs;
+    public static Button[] Tabs = new Button[8];
     private static int buttonCount = 0;
     public static String currentLayout;
 
@@ -111,53 +111,70 @@ class addCity {
             String code = data[3]; // Country Code
 
             String name = city + ", " + code;
+            String scan = name + " " + province;
 
-            for (String search : Cities) {
-                if (search.equals(name + " " + province)) {
-                    // todo: make an error message
+            for (String search : Cities) {  // Checking if the user is on the current layout ->
+                if (search.equals(scan)) { // if yes, it will prevent from the user to load the layout all over again.
+                    System.out.println(Cities);
+                    Error.raiseError(121);
                     return;
                 }
             }
 
-            if (buttonCount < 11) {
+            if (buttonCount < 7) {
+
                 Cities.add(name + " " + province);  // Add a new city to the list
                 buttonCount++;  // Increase the button count
                 Tabs[buttonCount] = new Button(name);  // create a new button in the array
                 Button newButton = Tabs[buttonCount];  // Assign a new variable
 
-                newButton.setId("newButton");  // Implement CSS
+                //newButton.setId("newButton");
+                newButton.getStyleClass().add("sidebar-button"); // Implement CSS
 
                 newButton.setOnAction(  // Layout switch
                         event -> {
                             if (currentLayout == null || !currentLayout.equals(name)) {
-                                Main.removeButton.setId("remove-button");
-                                Main.titleBar.getChildren().get(2).setVisible(true);
-                                Main.HomeisOpen = false;
+
+                                if (!Cities.isEmpty()) {  // Let the user add again the city to the list after removal of the city
+                                    Iterator<String> iterator = Cities.iterator();
+                                    while (iterator.hasNext()) {
+                                        String search = iterator.next();
+                                        if (search.equals(scan)) {
+                                            iterator.remove();
+                                            break;
+                                        }
+                                    }
+                                }
 
                                 switchLayout(city);
                                 currentLayout = name;
+                                Main.HomeisOpen = false;
+                                Main.titleBar.getChildren().get(2).setVisible(true);
                             }
                         }
                 );
 
-                HBox newContainer = new HBox();
-                newContainer.getChildren().add(0, newButton);
-                newContainer.setAlignment(Pos.TOP_CENTER);
-                newContainer.setFillHeight(true);
+                Main.sidebarCities.getChildren().add(newButton);
 
-                Main.sidebarCities.getChildren().add(newContainer);
-            } else if (buttonCount > 11) {  // Max: 12
+            } else if (buttonCount > 7) {  // Max: 8
                 Error.raiseError(146);
             }
         }
     }
-
-
 
     private static void switchLayout(String newCity) {
         City city = new City(newCity);
         BorderPane root = Main.getMainRoot();
         root.setCenter(city);
     }
+
+    public static String getCity(String city) {
+        String[][] City = Data.searchResult(city);
+        String addToCities = City[0][0] + ", " + City[3][0] + " " + City[2][0];
+        addCity.Cities.add(addToCities);
+
+        return addToCities;
+    }
+
 
 }
