@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import Weather.main.app;
-import Weather.main.error;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.DatabaseReader;
@@ -31,9 +30,11 @@ import org.apache.commons.csv.CSVFormat;
 
 public class data {
 
+    // https://api.openweathermap.org/data/2.5/forecast?q=Haifa&appid=70f28ecc4f3d6c65e0897b61513c262f
+
     private static String Public_IP = PublicIPFinder();
     private static final String DataPath = "data\\GeoLite2-City.mmdb";
-    private static final String apiKey;
+    private static final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f";
     public static TableView<search> Table;
 
     private static boolean Check(String[][] arr) {  // Check if is there any null value in the arrays
@@ -62,11 +63,13 @@ public class data {
                     return Public_IP;
                 }
             } else {
-                error.raiseError(144);
+                app.alert(app.title, "Error code 67: Unable to connect, try again later",
+                        app.error, null);
                 return "Error: Unable to fetch public IP. HTTP Response Code: " + http_connection.getResponseCode();
             }
         } catch (IOException e) {
-            error.raiseError(144);
+            app.alert(app.title, "Error code 71: Unable to connect, try again later",
+                    app.error, null);
             return "Error " + e.getMessage();
         }
     }
@@ -79,11 +82,13 @@ public class data {
                 City city = response.getCity();
                 return city.getName();
             } catch (GeoIp2Exception | IOException e) {
-                error.raiseError(666);
+                app.alert(app.title, "Error code 86: Unable to fetch data, try again later",
+                        app.error, null);
                 return null;
             }
         } else {
-            error.raiseError(0);
+            app.alert(app.title, "Error code 91: An error has been occurred",
+                    app.error, null);
             return null;
         }
     }
@@ -111,6 +116,8 @@ public class data {
             reader.close();
             return response.toString();
         } catch (IOException e) {
+            app.alert(app.title, "Error code 120: Unable to fetch data",
+                    app.error, null);
             return e.toString();
         }
     }
@@ -167,10 +174,12 @@ public class data {
                     return temperatureForecast;
                 }
             } else {
-                System.out.println("Failed - 144");
+                app.alert(app.title, "Error code 176: An error has been occurred",
+                        app.error, null);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            app.alert(app.title, "Error code 91: An error has been occurred",
+                    app.error, null);
         }
         return temperatureForecast;
     }
@@ -179,12 +188,13 @@ public class data {
         JSONObject jsonObject = new JSONObject(weatherData);
         JSONArray weatherArray = jsonObject.getJSONArray("weather");
 
-        if (weatherArray.length() > 0) {
+        if (!weatherArray.isEmpty()) {
             JSONObject weatherObject = weatherArray.getJSONObject(0);
             return weatherObject.getString("main");
 
         } else {
-            error.raiseError(0);
+            app.alert(app.title, "Error code 195: Unable to fetch data",
+                    app.error, null);
             return "Unknown";
         }
     }
@@ -207,7 +217,8 @@ public class data {
             reader.close();
             return response.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            app.alert(app.title, "Error code 219: Unable to fetch data",
+                    app.error, null);
             return null;
         }
     }
@@ -241,7 +252,8 @@ public class data {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            app.alert(app.title, "Error code 254: Unable to get the data",
+                    app.error, null);
         }
 
         return weatherForecast;
@@ -315,7 +327,8 @@ public class data {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            app.alert(app.title, "Error code 329: An error has been occurred",
+                    app.error, null);
         }
         return data; // Will return null
     }
@@ -374,7 +387,8 @@ public class data {
                     Data.add(new search("", "", "", ""));
                     Table.setPlaceholder(notFound);
                 } else {
-                    error.raiseError(100);
+                    app.alert(app.title, "Error code 390: Unable to perform search",
+                            app.error, null);
                     return; // Stop the loop
                 }
             }
@@ -382,8 +396,8 @@ public class data {
             Table.setItems(Data);
 
         } catch (ArrayIndexOutOfBoundsException e) {
-            error.raiseError(0);
-            e.printStackTrace();
+            app.alert(app.title, "Error code 397: Unable to perform search",
+                    app.error, null);
         }
     }
 
@@ -402,11 +416,13 @@ public class data {
                 } // [city, country, province, code]
                 return selectedData;
             } else {
-                error.raiseError(100);
+                app.alert(app.title, "Error code 417: Invalid data",
+                        app.error, null);
                 return null;
             }
         } catch (NullPointerException e) {
-            error.raiseError(100);
+            app.alert(app.title, "Error code 417: Invalid data",
+                    app.error, null);
             return null;
         }
     }

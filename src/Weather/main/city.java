@@ -103,7 +103,8 @@ public class city extends BorderPane {
                 }
             }
         } catch (FileNotFoundException e) {
-            error.raiseError(348); // Let's try to prevent this error :D
+            app.alert(app.title, "Error code 106: File not found",
+                    app.error, null);
         }
 
         forecastContainer.setSpacing(10);
@@ -124,27 +125,22 @@ class addCity {
     private static int buttonCount = 0;
     public static String currentLayout;
 
-    public static void addTab(String[] data) {
-        if (data != null && data.length >= 3) {
-
-            String city = data[0]; // City
-            String province = data[2]; // Province
-            String code = data[3]; // Country Code
-
+    public static void addTab(String city, String province, String code) {
+        if (city != null && province != null && code != null) {
             String name = city + ", " + code;
-            String scan = name + " " + province;
 
-            for (String search : Cities) {  // Checking if the user is on the current layout ->
-                if (search.equals(scan)) { // if yes, it will prevent from the user to load the layout all over again.
+            if (buttonCount < 8) {
+
+                for (int i = Cities.size() - 1; i >= 0; i--) {
                     System.out.println(Cities);
-                    error.raiseError(121);
-                    return;
+                    if (name.trim().equals(Cities.get(i).trim())) {
+                        app.alert(app.title, "City already exists", app.warning, null);
+                        return;
+                    }
                 }
-            }
 
-            if (buttonCount < 7) {
+                Cities.add(name);  // Add a new city to the list
 
-                Cities.add(name + " " + province);  // Add a new city to the list
                 buttonCount++;  // Increase the button count
                 Tabs[buttonCount] = new Button(name);  // create a new button in the array
                 Button newButton = Tabs[buttonCount];  // Assign a new variable
@@ -155,18 +151,6 @@ class addCity {
                 newButton.setOnAction(  // Layout switch
                         event -> {
                             if (currentLayout == null || !currentLayout.equals(name)) {
-
-                                if (!Cities.isEmpty()) {  // Let the user add again the city to the list after removal of the city
-                                    Iterator<String> iterator = Cities.iterator();
-                                    while (iterator.hasNext()) {
-                                        String search = iterator.next();
-                                        if (search.equals(scan)) {
-                                            iterator.remove();
-                                            break;
-                                        }
-                                    }
-                                }
-
                                 switchLayout(city);  // Switch layout on click
                                 currentLayout = name;  // Set the layout equal to current city
                                 app.HomeisOpen = false;  // Well, you are not at home, right?
@@ -177,8 +161,9 @@ class addCity {
 
                 app.sidebarCities.getChildren().add(newButton);
 
-            } else if (buttonCount > 7) {  // Max: 8
-                error.raiseError(146);
+            } else if (buttonCount == 8) {  // Max: 8
+                app.alert(app.title, "You reached the maximum amount of cities",
+                        app.information, null);
             }
         }
     }
@@ -190,9 +175,9 @@ class addCity {
     }
 
     public static String getCity(String city) {
-        String[][] City = data.searchResult(city);
-        String addToCities = City[0][0] + ", " + City[3][0] + " " + City[2][0];
-        addCity.Cities.add(addToCities);
+        String[][] City = Weather.Data.data.searchResult(city);
+        String addToCities = City[0][0] + ", " + City[3][0];
+        Cities.add(addToCities);
 
         return addToCities;
     }

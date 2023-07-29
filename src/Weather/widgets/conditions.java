@@ -1,6 +1,6 @@
 package Weather.widgets;
 
-import Weather.main.error;
+import Weather.main.app;
 import javafx.scene.image.Image;
 
 import java.io.FileInputStream;
@@ -42,7 +42,8 @@ public class conditions {
             InputStream stream = new FileInputStream(imagePath);
             return new Image(stream);
         } else {
-            error.raiseError(348);
+            app.alert(app.title, "Error code 46: File not found",
+                    app.error, null);
             return null;
         }
     }

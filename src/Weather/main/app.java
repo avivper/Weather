@@ -8,9 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -22,6 +20,8 @@ import javafx.stage.StageStyle;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class app extends Application {
@@ -40,16 +40,22 @@ public class app extends Application {
     // Path for stylesheet
     private static final String UIPath = "data\\css\\ui.css";
     private static final String SearchPath = "data\\css\\search.css";
+    public static final String title = "Weather App";
 
     public static BorderPane MainRoot;   // The root of the entire software
     public static BorderPane CenterContent;  // Will display the data
     public static VBox sidebarCities;  // Container for new Cities that was added by the user
     public static HBox titleBar;  // Container for title, plus for add cities and minus for remove cities
 
+    // Alert handle
+    public static Alert.AlertType information = Alert.AlertType.INFORMATION;
+    public static Alert.AlertType warning = Alert.AlertType.WARNING;
+    public static Alert.AlertType error = Alert.AlertType.ERROR;
+    public static Alert.AlertType confirmation = Alert.AlertType.CONFIRMATION;
 
     @Override
     public void start(Stage primaryStage) throws Exception {  // Main central Window
-        init();  // Implement the css
+        init();
 
         // Root layout
         MainRoot = new BorderPane();  // Creating the root
@@ -72,7 +78,7 @@ public class app extends Application {
         primaryStage.initStyle(StageStyle.UNDECORATED);  // Hide the OS closeBar
         primaryStage.getIcons().add(new Image(stream));  // Set the weather Icon
         primaryStage.setResizable(false); // Prevent from the user to resize the window
-        primaryStage.setTitle("Weather App");  // Title set
+        primaryStage.setTitle(title);  // Title set
         primaryStage.setWidth(800);  // Determined the width and height
         primaryStage.setHeight(600);
         primaryStage.setScene(scene);
@@ -123,11 +129,12 @@ public class app extends Application {
                     String[] data = Weather.Data.data.getData(Weather.Data.data.Table); // Receive the data from the user
                     if (data != null) { // Check if it's not null
                         try {
-                            addCity.addTab(data); // Add the city to the GUI
+                            addCity.addTab(data[0], data[2], data[3]); // Add the city to the GUI
                             SearchisOpen = false;  // Switch to off that the user can open again the window
                             searchStage.close();  // Closing the window
                         } catch (Exception e) {
-                            error.raiseError(100);
+                            alert(title, "Error code 131: Invalid data",
+                                    error, null);
                         }
                     } else {
                         SearchisOpen = true; // Keeping the user on the window
@@ -147,15 +154,11 @@ public class app extends Application {
 
         Scene scene = new Scene(root);
 
-        /*
-                String cssPath = Objects.requireNonNull(
-                Main.class.getResource("search.css")).toExternalForm();
-         */
-
         scene.getStylesheets().add(new File(SearchPath).toURI().toString()); // Implement CSS
 
         searchStage.initStyle(StageStyle.UNDECORATED);  // Hide the OS Close bar and the Title Bar
         searchStage.setResizable(false);  // Prevent from window to   resize the window
+        searchStage.setTitle(title);
         searchStage.setWidth(350);
         searchStage.setHeight(300);
         searchStage.setScene(scene);
@@ -191,22 +194,25 @@ public class app extends Application {
 
         removeButton.setOnAction(
                 event -> {
-                    for (Node node : sidebarCities.getChildren()) {  // Scanning the buttons in the sidebar
-                        if (node instanceof Button) {  // Checking if the node is a button
-                            if (((Button) node).getText()
-                                    .equals(addCity.currentLayout)) {  // Checking if it's on the current layer
-                                showConfirmation(  // Asking the user permission
+                    Iterator<Node> iterator = sidebarCities.getChildren().iterator();
+                    while (iterator.hasNext()) {
+                        Node node = iterator.next();
+                        if (node instanceof Button) {
+                            if (((Button) node).getText().equals(addCity.currentLayout)) {
+                                showConfirmation(
                                         result -> {
                                             boolean decision = result;
                                             if (decision) {
-                                                sidebarCities.getChildren().remove(node);  // Bye, bye!
+                                                iterator.remove();
+                                                addCity.Cities.remove(addCity.currentLayout);
 
-                                                switchHome(); // Get back to home
-                                                addCity.currentLayout = null;  // Set the currentLayout to null
-                                                HomeisOpen = true;  // On home
-                                                titleBar.getChildren().get(2).setVisible(false); // Hide the remove button
+                                                switchHome();
+                                                addCity.currentLayout = null;
+                                                HomeisOpen = true;
+                                                titleBar.getChildren().get(2).setVisible(false);
+
                                             } else {
-                                                System.out.println(false);  // Will display false at the console
+                                                System.out.println(false);
                                             }
                                         }
                                 );
@@ -246,7 +252,6 @@ public class app extends Application {
                     }
                 }
         );
-
 
         VBox.setVgrow(sidebar, Priority.ALWAYS);
         sidebar.setPrefWidth(150);
@@ -319,7 +324,7 @@ public class app extends Application {
                     forecastStatus[i].setX(labelX);
                     forecastStatus[i].setY(labelY + 70);
 
-                    Days[i] = new Label(date.format(formatter));  // Will present the string of the day (Sunday, Monday and etc)
+                    Days[i] = new Label(date.format(formatter));  // Will present the string of the day
                     Days[i].setId("Day");
                     Days[i].setLayoutX(labelX);
                     Days[i].setLayoutY(labelY);
@@ -329,7 +334,7 @@ public class app extends Application {
                     ForecastLabel[i].setLayoutX(labelX);
                     ForecastLabel[i].setLayoutY(labelY + 40);
 
-                    forecastData[i] = createForecastSquare();  // Creating the square =]
+                    forecastData[i] = createForecastSquare();
                     forecastData[i].setOpacity(0.4);  // Weaken the color that will have a clear background effect
                     forecastData[i].setFill(Color.BLACK);  // Set to black
 
@@ -339,7 +344,7 @@ public class app extends Application {
                 }
             }
         } catch (FileNotFoundException e) {
-            error.raiseError(348);  // Let's try to prevent this error :D
+            alert(title, "Error code 352: file not found", error, null);
         }
 
         forecastContainer.setSpacing(10);
@@ -361,7 +366,6 @@ public class app extends Application {
                 }
             }
         }
-
         return root;
     }
 
@@ -374,30 +378,65 @@ public class app extends Application {
         MainRoot.setCenter(home);
     }
 
-    public void showConfirmation(Consumer<Boolean> callback) {  // Method that will ask user true or false (Yes or no message)
-        error.raiseError(1);
-        error.user_confirmed = callback;
-    }
-
     public static closeBar createCloseBar(Stage stage) {  // Creating the CloseBar that will contain the minimize and close buttons
         try {
             return new closeBar(stage);
         } catch (IOException e) {
-            error.raiseError(0);
-            e.printStackTrace();
+            alert(title, "Error code 408: Close Bar isn't loading", error, null);
+            stage.close();
         }
         return null;
     }
 
+    private static void showConfirmation(Consumer<Boolean> callback) { // Method that will ask user true or false (Yes or no message)
+        alert("Confirmation", "Are you sure you want to proceed?",
+                Alert.AlertType.CONFIRMATION, callback);
+    }
+
+    public static void alert(String title, String contentText, Alert.AlertType alertType,
+                             Consumer<Boolean> user_confirmed) {
+
+        Alert alertHandle = new Alert(alertType);
+        DialogPane dialogPane = alertHandle.getDialogPane();
+        dialogPane.getStylesheets().add(new File(UIPath).toURI().toString());
+
+        alertHandle.setTitle(title);
+        alertHandle.setHeaderText("");
+        alertHandle.setContentText(contentText);
+
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.CENTER);
+
+        vbox.getChildren().add(new Label(contentText));
+        dialogPane.setContent(vbox);
+
+        dialogPane.setPrefWidth(200);
+        dialogPane.setPrefHeight(120);
+
+
+        if (alertType == confirmation) {
+
+            ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alertHandle.getButtonTypes().setAll(yesButton, noButton);
+
+            Optional<ButtonType> result = alertHandle.showAndWait();
+
+            if (result.isPresent() && result.get() == yesButton) {
+                user_confirmed.accept(true);
+            } else {
+                user_confirmed.accept(false);
+            }
+
+        } else {
+            alertHandle.showAndWait();
+        }
+    }
 
     @Override
     public void init() {
-        Application.setUserAgentStylesheet(new File(UIPath).toURI().toString());
-        /*
-                Application.setUserAgentStylesheet(Objects.requireNonNull(
-                getClass().getResource(new File(UIPath).toURI().toString())).toExternalForm()
-        );
-         */
+        Application.setUserAgentStylesheet(new File(UIPath)
+                .toURI().toString());
     }
 
     public static BorderPane getMainRoot() {

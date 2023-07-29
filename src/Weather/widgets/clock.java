@@ -1,6 +1,5 @@
 package Weather.widgets;
 
-import Weather.main.error;
 import Weather.main.app;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -70,7 +69,8 @@ public class clock {
             }
 
         } else {
-            error.raiseError(0);
+            app.alert(app.title, "Error code 73: Unable to load time data",
+                    app.error, null);
         }
     }
 
