@@ -1,10 +1,11 @@
 package Weather.main;
 
 import Weather.Data.data;
-import Weather.widgets.clock;
+import Weather.widgets.Clock;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -16,15 +17,13 @@ import javafx.scene.shape.Rectangle;
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class city extends BorderPane {
 
     public city(String city) {
+        Clock Clock = new Clock();
 
-        clock.createClock();  // Creating the clock for the user based on location's time
+        Clock.createClock();  // Creating the clock for the user based on location's time
         app.clock = new Label();  // Clock label
         app.Status = new Label();  // Will show a greeting message based on the time
 
@@ -103,14 +102,14 @@ public class city extends BorderPane {
                 }
             }
         } catch (FileNotFoundException e) {
-            app.alert(app.title, "Error code 106: File not found",
-                    app.error, null);
+            new Alerts(app.title, "Error code 106: File not found",
+                    Alert.AlertType.ERROR, null);
         }
 
         forecastContainer.setSpacing(10);
         forecastContainer.setPadding(new Insets(5));
         forecastContainer.setAlignment(Pos.BOTTOM_CENTER);
-        clock.setStatus(this); // Apply the appropriate background based on the hour
+        Clock.setStatus(this); // Apply the appropriate background based on the hour
 
         this.setTop(clockContainer);
         this.setCenter(dataContainer);
@@ -118,69 +117,3 @@ public class city extends BorderPane {
     }
 }
 
-class addCity {
-    public static List<String> Cities = new ArrayList<>();
-
-    public static Button[] Tabs = new Button[8];
-    private static int buttonCount = 0;
-    public static String currentLayout;
-
-    public static void addTab(String city, String province, String code) {
-        if (city != null && province != null && code != null) {
-            String name = city + ", " + code;
-
-            if (buttonCount < 8) {
-
-                for (int i = Cities.size() - 1; i >= 0; i--) {
-                    System.out.println(Cities);
-                    if (name.trim().equals(Cities.get(i).trim())) {
-                        app.alert(app.title, "City already exists", app.warning, null);
-                        return;
-                    }
-                }
-
-                Cities.add(name);  // Add a new city to the list
-
-                buttonCount++;  // Increase the button count
-                Tabs[buttonCount] = new Button(name);  // create a new button in the array
-                Button newButton = Tabs[buttonCount];  // Assign a new variable
-
-                //newButton.setId("newButton");
-                newButton.getStyleClass().add("sidebar-button"); // Implement CSS
-
-                newButton.setOnAction(  // Layout switch
-                        event -> {
-                            if (currentLayout == null || !currentLayout.equals(name)) {
-                                switchLayout(city);  // Switch layout on click
-                                currentLayout = name;  // Set the layout equal to current city
-                                app.HomeisOpen = false;  // Well, you are not at home, right?
-                                app.titleBar.getChildren().get(2).setVisible(true);  // Making remove button visible
-                            }
-                        }
-                );
-
-                app.sidebarCities.getChildren().add(newButton);
-
-            } else if (buttonCount == 8) {  // Max: 8
-                app.alert(app.title, "You reached the maximum amount of cities",
-                        app.information, null);
-            }
-        }
-    }
-
-    private static void switchLayout(String newCity) {
-        city city = new city(newCity);
-        BorderPane root = app.getMainRoot();
-        root.setCenter(city);
-    }
-
-    public static String getCity(String city) {
-        String[][] City = Weather.Data.data.searchResult(city);
-        String addToCities = City[0][0] + ", " + City[3][0];
-        Cities.add(addToCities);
-
-        return addToCities;
-    }
-
-
-}

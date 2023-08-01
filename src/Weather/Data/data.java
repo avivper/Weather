@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import Weather.main.Alerts;
 import Weather.main.app;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
@@ -16,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -30,9 +32,11 @@ import org.apache.commons.csv.CSVFormat;
 
 public class data {
 
+    // https://api.openweathermap.org/data/2.5/forecast?q=Haifa&appid=70f28ecc4f3d6c65e0897b61513c262f
+
     private static String Public_IP = PublicIPFinder();
     private static final String DataPath = "data\\GeoLite2-City.mmdb";
-    private static final String apiKey;
+    private static final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f";
     public static TableView<search> Table;
 
     private static boolean Check(String[][] arr) {  // Check if is there any null value in the arrays
@@ -48,8 +52,8 @@ public class data {
     // todo: make it more steady with various url services
     public static String PublicIPFinder() {
         try {
-            URL url = new URL("http://checkip.amazonaws.com/");  // Contain user IP address
-            HttpURLConnection http_connection = (HttpURLConnection) url.openConnection();
+            URI url = new URI("http://checkip.amazonaws.com/");  // Contain user IP address
+            HttpURLConnection http_connection = (HttpURLConnection) url.toURL().openConnection();
             http_connection.setRequestMethod("GET");  // Making a request
             http_connection.setConnectTimeout(5000);
             http_connection.connect();
@@ -61,13 +65,13 @@ public class data {
                     return Public_IP;
                 }
             } else {
-                app.alert(app.title, "Error code 67: Unable to connect, try again later",
-                        app.error, null);
+               new Alerts(app.title, "Error code 67: Unable to connect, try again later",
+                        Alert.AlertType.ERROR, null);
                 return "Error: Unable to fetch public IP. HTTP Response Code: " + http_connection.getResponseCode();
             }
-        } catch (IOException e) {
-            app.alert(app.title, "Error code 71: Unable to connect, try again later",
-                    app.error, null);
+        } catch (IOException  | URISyntaxException e ) {
+            new Alerts(app.title, "Error code 71: Unable to connect, try again later",
+                    Alert.AlertType.ERROR, null);
             return "Error " + e.getMessage();
         }
     }
@@ -80,13 +84,13 @@ public class data {
                 City city = response.getCity();
                 return city.getName();
             } catch (GeoIp2Exception | IOException e) {
-                app.alert(app.title, "Error code 86: Unable to fetch data, try again later",
-                        app.error, null);
+                new Alerts(app.title, "Error code 86: Unable to fetch data, try again later",
+                        Alert.AlertType.ERROR, null);
                 return null;
             }
         } else {
-            app.alert(app.title, "Error code 91: An error has been occurred",
-                    app.error, null);
+            new Alerts(app.title, "Error code 91: An error has been occurred",
+                    Alert.AlertType.ERROR, null);
             return null;
         }
     }
@@ -99,8 +103,8 @@ public class data {
     private static String getWeatherData(String city) {
         try {
             String apiURL = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + data.apiKey;
-            URL url = new URL(apiURL);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            URI url = new URI(apiURL);
+            HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
             connection.setRequestMethod("GET");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -113,9 +117,9 @@ public class data {
 
             reader.close();
             return response.toString();
-        } catch (IOException e) {
-            app.alert(app.title, "Error code 120: Unable to fetch data",
-                    app.error, null);
+        } catch (IOException | URISyntaxException e) {
+            new Alerts(app.title, "Error code 120: Unable to fetch data",
+                    Alert.AlertType.ERROR, null);
             return e.toString();
         }
     }
@@ -157,8 +161,8 @@ public class data {
         double[] temperatureForecast = new double[5];
 
         try {
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            URI url = new URI(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
             connection.setRequestMethod("GET");  // Making a request
             connection.setConnectTimeout(5000);
             connection.connect();
@@ -172,12 +176,12 @@ public class data {
                     return temperatureForecast;
                 }
             } else {
-                app.alert(app.title, "Error code 176: An error has been occurred",
-                        app.error, null);
+                new Alerts(app.title, "Error code 176: An error has been occurred",
+                        Alert.AlertType.ERROR, null);
             }
-        } catch (IOException e) {
-            app.alert(app.title, "Error code 91: An error has been occurred",
-                    app.error, null);
+        } catch (IOException | URISyntaxException e) {
+            new Alerts(app.title, "Error code 91: An error has been occurred",
+                    Alert.AlertType.ERROR, null);
         }
         return temperatureForecast;
     }
@@ -191,8 +195,8 @@ public class data {
             return weatherObject.getString("main");
 
         } else {
-            app.alert(app.title, "Error code 195: Unable to fetch data",
-                    app.error, null);
+            new Alerts(app.title, "Error code 195: Unable to fetch data",
+                   Alert.AlertType.ERROR, null);
             return "Unknown";
         }
     }
@@ -200,8 +204,8 @@ public class data {
     private static String getStatusOfToday(String city) {
         try {
             String apiURL = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
-            URL url = new URL(apiURL);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            URI url = new URI(apiURL);
+            HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
             connection.setRequestMethod("GET");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -214,9 +218,9 @@ public class data {
 
             reader.close();
             return response.toString();
-        } catch (IOException e) {
-            app.alert(app.title, "Error code 219: Unable to fetch data",
-                    app.error, null);
+        } catch (IOException | URISyntaxException e) {
+            new Alerts(app.title, "Error code 219: Unable to fetch data",
+                    Alert.AlertType.ERROR, null);
             return null;
         }
     }
@@ -226,8 +230,8 @@ public class data {
 
         try {
             String apiURL = "http://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiKey;
-            URL url = new URL(apiURL);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            URI url = new URI(apiURL);
+            HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
             connection.setRequestMethod("GET");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -249,9 +253,9 @@ public class data {
                 weatherForecast[i] = weatherData;
             }
 
-        } catch (IOException e) {
-            app.alert(app.title, "Error code 254: Unable to get the data",
-                    app.error, null);
+        } catch (IOException | URISyntaxException e) {
+            new Alerts(app.title, "Error code 254: Unable to get the data",
+                    Alert.AlertType.ERROR, null);
         }
 
         return weatherForecast;
@@ -325,8 +329,8 @@ public class data {
             }
 
         } catch (IOException e) {
-            app.alert(app.title, "Error code 329: An error has been occurred",
-                    app.error, null);
+            new Alerts(app.title, "Error code 329: An error has been occurred",
+                    Alert.AlertType.ERROR, null);
         }
         return data; // Will return null
     }
@@ -385,8 +389,8 @@ public class data {
                     Data.add(new search("", "", "", ""));
                     Table.setPlaceholder(notFound);
                 } else {
-                    app.alert(app.title, "Error code 390: Unable to perform search",
-                            app.error, null);
+                    new Alerts(app.title, "Error code 390: Unable to perform search",
+                            Alert.AlertType.ERROR, null);
                     return; // Stop the loop
                 }
             }
@@ -394,8 +398,8 @@ public class data {
             Table.setItems(Data);
 
         } catch (ArrayIndexOutOfBoundsException e) {
-            app.alert(app.title, "Error code 397: Unable to perform search",
-                    app.error, null);
+            new Alerts(app.title, "Error code 397: Unable to perform search",
+                    Alert.AlertType.ERROR, null);
         }
     }
 
@@ -414,13 +418,13 @@ public class data {
                 } // [city, country, province, code]
                 return selectedData;
             } else {
-                app.alert(app.title, "Error code 417: Invalid data",
-                        app.error, null);
+                new Alerts(app.title, "Error code 417: Invalid data",
+                        Alert.AlertType.ERROR, null);
                 return null;
             }
         } catch (NullPointerException e) {
-            app.alert(app.title, "Error code 417: Invalid data",
-                    app.error, null);
+            new Alerts(app.title, "Error code 417: Invalid data",
+                    Alert.AlertType.ERROR, null);
             return null;
         }
     }

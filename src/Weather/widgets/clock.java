@@ -1,13 +1,15 @@
 package Weather.widgets;
 
+import Weather.main.Alerts;
 import Weather.main.app;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import java.util.Calendar;
 
-public class clock {
+public class Clock {
 
     static int hour;
 
@@ -18,7 +20,7 @@ public class clock {
         return calendar;
     }
 
-    public static void createClock() {
+    public void createClock() {
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> {
                     Calendar calendar = createCalendar();
@@ -44,7 +46,7 @@ public class clock {
         timeline.play();
     }
 
-    public static void setStatus(BorderPane root) {
+    public void setStatus(BorderPane root) {
         if (root != null) {
             Calendar calendar = createCalendar();
             hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -69,8 +71,8 @@ public class clock {
             }
 
         } else {
-            app.alert(app.title, "Error code 73: Unable to load time data",
-                    app.error, null);
+            new Alerts(app.title, "Error code 73: Unable to load time data",
+                    Alert.AlertType.ERROR, null);
         }
     }
 

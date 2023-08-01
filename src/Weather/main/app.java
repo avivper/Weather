@@ -1,6 +1,9 @@
 package Weather.main;
 
+import Weather.Data.Load;
+import Weather.Data.Save;
 import Weather.Data.data;
+import Weather.widgets.Clock;
 import Weather.widgets.closeBar;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -21,7 +24,6 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class app extends Application {
@@ -47,20 +49,14 @@ public class app extends Application {
     public static VBox sidebarCities;  // Container for new Cities that was added by the user
     public static HBox titleBar;  // Container for title, plus for add cities and minus for remove cities
 
-    // Alert handle
-    public static Alert.AlertType information = Alert.AlertType.INFORMATION;
-    public static Alert.AlertType warning = Alert.AlertType.WARNING;
-    public static Alert.AlertType error = Alert.AlertType.ERROR;
-    public static Alert.AlertType confirmation = Alert.AlertType.CONFIRMATION;
-
     @Override
     public void start(Stage primaryStage) throws Exception {  // Main central Window
         init();
 
         // Root layout
         MainRoot = new BorderPane();  // Creating the root
-        CenterContent = createHome();  // Creating the home
         sidebarCities = createSidebar();  // Creating the sidebar
+        CenterContent = createHome();  // Creating the home
 
         HBox closeBar = createCloseBar(primaryStage);  // Creating the close bar that contains close and minimize buttons
         HBox titleBar = titleBar();  // Creating the titlebar, will place below the close bar
@@ -129,12 +125,12 @@ public class app extends Application {
                     String[] data = Weather.Data.data.getData(Weather.Data.data.Table); // Receive the data from the user
                     if (data != null) { // Check if it's not null
                         try {
-                            addCity.addTab(data[0], data[2], data[3]); // Add the city to the GUI
+                            Load.addTab(data[0], data[3]); // Add the city to the GUI
                             SearchisOpen = false;  // Switch to off that the user can open again the window
                             searchStage.close();  // Closing the window
                         } catch (Exception e) {
-                            alert(title, "Error code 131: Invalid data",
-                                    error, null);
+                            new Alerts(title, "Error code 131: Invalid data",
+                                    Alert.AlertType.ERROR, null);
                         }
                     } else {
                         SearchisOpen = true; // Keeping the user on the window
@@ -198,16 +194,16 @@ public class app extends Application {
                     while (iterator.hasNext()) {
                         Node node = iterator.next();
                         if (node instanceof Button) {
-                            if (((Button) node).getText().equals(addCity.currentLayout)) {
+                            if (((Button) node).getText().equals(Load.currentLayout)) {
                                 showConfirmation(
                                         result -> {
                                             boolean decision = result;
                                             if (decision) {
                                                 iterator.remove();
-                                                addCity.Cities.remove(addCity.currentLayout);
+                                                Load.Cities.remove(Load.currentLayout);
 
                                                 switchHome();
-                                                addCity.currentLayout = null;
+                                                Load.currentLayout = null;
                                                 HomeisOpen = true;
                                                 titleBar.getChildren().get(2).setVisible(false);
 
@@ -237,36 +233,49 @@ public class app extends Application {
     private VBox createSidebar() {  // Sidebar, mostly contain new cities that was added by the user
         VBox sidebar = new VBox();
 
-        addCity.Tabs[0] = new Button("Home");  // Saving the first Button for Home Stage that will display location's weather
-        Button homeButton = addCity.Tabs[0];  // Creating variable name for homeButton
+        Button homeButton = new Button("Home");  // Creating variable name for homeButton
+        Button saveButton = new Button("Save");
 
-        homeButton.getStyleClass().add("sidebar-button"); // Implement CSS
+        homeButton.getStyleClass().add("sidebar-button");
+        saveButton.getStyleClass().add("sidebar-button");
 
         homeButton.setOnAction(
                 event -> {
                     if (!HomeisOpen) {
                         titleBar.getChildren().get(2).setVisible(false);
-                        addCity.currentLayout = null;
+                        Load.currentLayout = null;
                         HomeisOpen = true;
                         switchHome();
                     }
                 }
         );
 
-        VBox.setVgrow(sidebar, Priority.ALWAYS);
+        saveButton.setOnAction(
+                event -> Save.save(Load.Cities)
+        );
+
+        Region region = new Region();
+        VBox.setVgrow(region, Priority.ALWAYS);
         sidebar.setPrefWidth(150);
         sidebar.setPadding(new Insets(10));
         sidebar.setAlignment(Pos.TOP_CENTER);
         sidebar.setSpacing(0);  // Set a space between buttons
         sidebar.getStyleClass().add("sidebar");
-        sidebar.getChildren().add(0, homeButton);
+        sidebar.getChildren().addAll(homeButton, region, saveButton);
 
         return sidebar;
     }
 
     private BorderPane createHome() {
+        String path = "data\\save";
+        File file = new File(path);
 
-        Weather.widgets.clock.createClock();  // Creating the clock for the user based on location's time
+        if (file.exists()) {
+            Save.load();
+        }
+
+        Clock Clock = new Clock();
+        Clock.createClock();  // Creating the clock for the user based on location's time
         clock = new Label(); // Clock label
         Status = new Label(); // Will show a greeting message based on the time
 
@@ -344,7 +353,7 @@ public class app extends Application {
                 }
             }
         } catch (FileNotFoundException e) {
-            alert(title, "Error code 352: file not found", error, null);
+            new Alerts(title, "Error code 352: file not found", Alert.AlertType.ERROR, null);
         }
 
         forecastContainer.setSpacing(10);
@@ -354,13 +363,13 @@ public class app extends Application {
         root.setTop(clockContainer);
         root.setCenter(dataContainer);
         root.setBottom(forecastContainer);
-        Weather.widgets.clock.setStatus(root);
+        Clock.setStatus(root);
 
         if (!addHome) {  // Trigger only once the list addition
-            HomeAdd = addCity.getCity(HomeCity);  // Add the home city based on the IP
+            HomeAdd = Load.getCity(HomeCity);  // Add the home city based on the IP
             addHome = true; // Set the boolean to true and will signal the software that the homeCity added to the list
         } else {
-            for (String search : addCity.Cities) {
+            for (String search : Load.Cities) {
                 if (search.equals(HomeAdd)) {
                     return root;
                 }
@@ -382,55 +391,15 @@ public class app extends Application {
         try {
             return new closeBar(stage);
         } catch (IOException e) {
-            alert(title, "Error code 408: Close Bar isn't loading", error, null);
+            new Alerts(title, "Error code 408: Close Bar isn't loading", Alert.AlertType.ERROR, null);
             stage.close();
         }
         return null;
     }
 
     private static void showConfirmation(Consumer<Boolean> callback) { // Method that will ask user true or false (Yes or no message)
-        alert("Confirmation", "Are you sure you want to proceed?",
+        new Alerts("Confirmation", "Are you sure you want to proceed?",
                 Alert.AlertType.CONFIRMATION, callback);
-    }
-
-    public static void alert(String title, String contentText, Alert.AlertType alertType,
-                             Consumer<Boolean> user_confirmed) {
-
-        Alert alertHandle = new Alert(alertType);
-        DialogPane dialogPane = alertHandle.getDialogPane();
-        dialogPane.getStylesheets().add(new File(UIPath).toURI().toString());
-
-        alertHandle.setTitle(title);
-        alertHandle.setHeaderText("");
-        alertHandle.setContentText(contentText);
-
-        VBox vbox = new VBox();
-        vbox.setAlignment(Pos.CENTER);
-
-        vbox.getChildren().add(new Label(contentText));
-        dialogPane.setContent(vbox);
-
-        dialogPane.setPrefWidth(200);
-        dialogPane.setPrefHeight(120);
-
-
-        if (alertType == confirmation) {
-
-            ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
-            alertHandle.getButtonTypes().setAll(yesButton, noButton);
-
-            Optional<ButtonType> result = alertHandle.showAndWait();
-
-            if (result.isPresent() && result.get() == yesButton) {
-                user_confirmed.accept(true);
-            } else {
-                user_confirmed.accept(false);
-            }
-
-        } else {
-            alertHandle.showAndWait();
-        }
     }
 
     @Override
