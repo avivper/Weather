@@ -4,6 +4,8 @@
 <p style="text-align:center;">
 The application displays updated today's weather data based on the user's location, including the current conditions and temperature in Celsius. To achieve this, the app requires an active internet connection. 
 Additionally, the application provides a weather forecast for the user's location, showing the expected temperature and conditions, such as whether it will be rainy or sunny. The app allows users to add cities to display weather data. However, some places and cities may be excluded, with a focus on including main cities, like capitals.
+
+In future updates, our focus will be on expanding the list of cities, with particular emphasis on suburban areas and communities.
 </p>
 
 
