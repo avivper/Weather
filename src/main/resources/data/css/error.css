@@ -1,0 +1,27 @@
+#Error {
+   -fx-font-size: 12px;
+   -fx-text-fill: black;
+   -fx-font-family: "Arial", sans-serif;
+}
+
+#button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-padding: 6px 12px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 1, 1, 1, 1);
+}
+
+#button:hover {
+    -fx-background-color: #45a049;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 2, 2, 2, 2);
+}
+
+#button:pressed {
+    -fx-background-color: #357d38;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 1, 1, 1, 1);
+}
+
+#root {
+  -fx-background-color: white;
+}
