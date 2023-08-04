@@ -121,7 +121,7 @@ public class Data {
 
     private String getWeatherData(String city, String code, String province) {
         try {
-            // https://api.openweathermap.org/data/2.5/forecast?q=Victoria,CA&appid=70f28ecc4f3d6c65e0897b61513c262f
+            
             String apiURL = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "," + province + "," + code + "&appid=" + apiKey;
             URI url = new URI(apiURL);
             HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
