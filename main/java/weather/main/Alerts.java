@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -30,8 +31,13 @@ public class Alerts {
             vbox.getChildren().add(new Label(contentText));
             dialogPane.setContent(vbox);
 
-            dialogPane.setPrefWidth(200);
+            dialogPane.setPrefWidth(400);
             dialogPane.setPrefHeight(120);
+
+            String modenaCSS = "data\\css\\caspian.css";
+            alertHandle.getDialogPane().getStylesheets().add(
+                    new File(modenaCSS).toURI().toString());
+
 
             if (alertType == confirmation) {
 

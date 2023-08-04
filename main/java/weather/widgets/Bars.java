@@ -75,7 +75,7 @@ public class Bars extends App {
         if (city != null && code != null) {
             String name = city  + ", " + code;
 
-            if (index < 9) {
+            if (index < 8) {
 
                 for (int i = Cities.size() - 1; i >=0; i--) {
                     if (name.trim().equals(Cities.get(i).trim())) {
@@ -104,7 +104,7 @@ public class Bars extends App {
                 root.getChildren().add(index, newButton);
                 index++;
 
-            } else if (index == 9) {
+            } else if (index == 8) {
                 new Alerts("Weather App", "You reached the maximum amount of cities",
                         Alert.AlertType.INFORMATION, null);
             }
@@ -203,7 +203,7 @@ public class Bars extends App {
                         try {
                             Contents contents = new Contents(stage);
                             contents.show();
-                            Contents.isContentsOpen = false;
+                            Contents.isContentsOpen = true;
                             contents.setOnHidden(
                                     e-> Contents.isContentsOpen = false
                             );
