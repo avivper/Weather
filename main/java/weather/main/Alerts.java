@@ -17,7 +17,7 @@ public class Alerts {
                   Alert.AlertType alertType,
                   Consumer<Boolean> decision) {
 
-        Platform.runLater(() -> { // Run the alert on the JavaFX Application Thread
+        Platform.runLater(() -> {
             Alert alertHandle = new Alert(alertType);
             DialogPane dialogPane = alertHandle.getDialogPane();
 
@@ -33,10 +33,6 @@ public class Alerts {
 
             dialogPane.setPrefWidth(400);
             dialogPane.setPrefHeight(120);
-
-            String modenaCSS = "data\\css\\caspian.css";
-            alertHandle.getDialogPane().getStylesheets().add(
-                    new File(modenaCSS).toURI().toString());
 
 
             if (alertType == confirmation) {
