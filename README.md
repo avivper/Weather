@@ -18,9 +18,7 @@ However This application will be in bigger project in the future and maybe more 
 
 <p style="text-align:center;">
 I created a search that will display the cities according to user's search input, on the click of an add button the city will add to the left sidebar on the application.
-
-  
-<img src="https://github.com/avivper/Weather/blob/main/Images/search.png" width="400" height="300" />
+<p><img src="https://github.com/avivper/Weather/blob/main/Images/search.png" width="400" height="300" /></p>
 
 That's the search after clicking on the search button:
 
