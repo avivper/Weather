@@ -29,7 +29,6 @@ public class Data {
     private final String apiKey;
 
 
-    // todo: make it more steady with various url services
     public String PublicIPFinder() {
         try {
             URI url = new URI("http://checkip.amazonaws.com/");  // Contain user IP address
