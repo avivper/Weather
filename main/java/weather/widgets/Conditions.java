@@ -14,11 +14,6 @@ public class Conditions {
     public static final Map<String, String> statusToImagePath = new HashMap<>();
 
 
-    /*
-    todo: get images for:
-      Squall -
-     */
-
     static {
         // set weather conditions and their corresponding image file paths to the map
         statusToImagePath.put("Clear", "data\\status\\Clear.png"); // Tested
