@@ -24,11 +24,9 @@ import java.util.Scanner;
 
 public class Data {
 
-    // https://api.openweathermap.org/data/2.5/forecast?q=Haifa&appid=70f28ecc4f3d6c65e0897b61513c262f
-
     public String Public_IP = PublicIPFinder();
     private final String DataPath = "data\\GeoLite2-City.mmdb";
-    private final String apiKey = "70f28ecc4f3d6c65e0897b61513c262f";
+    private final String apiKey;
 
 
     // todo: make it more steady with various url services
