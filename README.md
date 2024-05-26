@@ -36,4 +36,4 @@ The background of the application changes based on the hour, there a two modes, 
 </p>
 
 <h2 style="text-align:center;">Download</h2>
-<h4>soon</h4>
+<h4>Not avaliable, maybe it wil be in the future in newer version</h4>
